@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlanetOS v2</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="loginPanel">
+    <div class="loginGlow"></div>
+    <img src="Images/user.png" class="userAvatar" alt="User avatar"/>
+    <div class="username">ThePlanetZero</div>
+    <div class="status">PlanetOS v2.0 · Digital Creator</div>
+    <button class="loginBtn" onclick="login()">
+      <span class="loginBtnIcon">▶</span> Log In
+    </button>
+    <div class="loginVersion">Build 2025.1</div>
+  </div>
+  <audio id="loginSfx" src="SFX/login.mp3"></audio>
+</div>
+
+<!-- DESKTOP -->
+<div class="desktop" id="desktop">
+
+  <div class="icon" onclick="OS.windows.open('projects')" data-app="projects">
+    <div class="iconGraphic">📁</div>
+    <span>Projects</span>
+  </div>
+
+  <div class="icon" onclick="OS.windows.open('series')" data-app="series">
+    <div class="iconGraphic">📁</div>
+    <span>Series</span>
+  </div>
+
+  <div class="icon" onclick="OS.windows.open('updates')" data-app="updates">
+    <div class="iconGraphic">📡</div>
+    <span>Updates</span>
+  </div>
+
+  <div class="icon" onclick="OS.windows.open('music')" data-app="music">
+    <div class="iconGraphic">🎵</div>
+    <span>Music</span>
+  </div>
+
+  <div class="icon" onclick="OS.windows.open('about')" data-app="about">
+    <div class="iconGraphic">📄</div>
+    <span>About</span>
+  </div>
+
+  <div class="icon" onclick="OS.windows.open('images')" data-app="images">
+    <div class="iconGraphic">🖼️</div>
+    <span>Images</span>
+  </div>
+
+  <div class="icon" onclick="window.open('https://soundcloud.com/the_planetzero','_blank')">
+    <div class="iconGraphic"><img src="Images/soundcloud.png" class="desktopIcon" alt="SoundCloud"></div>
+    <span>SoundCloud</span>
+  </div>
+
+  <div class="icon" onclick="window.open('https://youtube.com/@the.PlanetZero','_blank')">
+    <div class="iconGraphic"><img src="Images/youtube.png" class="desktopIcon" alt="YouTube"></div>
+    <span>YouTube</span>
+  </div>
+
+</div>
+
+<!-- WINDOWS -->
+
+<div class="window" id="projects" data-title="Projects">
+  <div class="titlebar">
+    <span class="titlebar-icon">📁</span>
+    <span class="titlebar-label">Projects</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('projects')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('projects')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content">
+    <h2>Projects</h2>
+    <p class="muted">Coming soon inside PlanetOS.</p>
+  </div>
+</div>
+
+<div class="window" id="series" data-title="Series">
+  <div class="titlebar">
+    <span class="titlebar-icon">📁</span>
+    <span class="titlebar-label">Series</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('series')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('series')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content">
+    <h2>Series</h2>
+    <p class="muted">Stories and universes will appear here.</p>
+  </div>
+</div>
+
+<div class="window" id="updates" data-title="Updates">
+  <div class="titlebar">
+    <span class="titlebar-icon">📡</span>
+    <span class="titlebar-label">Updates</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('updates')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('updates')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content">
+    <h2>Latest Transmission</h2>
+    <p class="muted">PlanetOS is initializing…</p>
+  </div>
+</div>
+
+<div class="window" id="music" data-title="Music Player">
+  <div class="titlebar">
+    <span class="titlebar-icon">🎵</span>
+    <span class="titlebar-label">Music Player</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('music')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('music')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content">
+    <h2>Planet Player</h2>
+    <audio id="audioPlayer" controls style="width:100%;margin-top:8px;">
+      <source src="Music/Ye-THIS-A-MUST-ft-Kanye-West-(HipHopKit.com).mp3" type="audio/mpeg">
+    </audio>
+    <p class="muted trackLabel">♪ Now playing: THIS A MUST</p>
+  </div>
+</div>
+
+<div class="window" id="about" data-title="About">
+  <div class="titlebar">
+    <span class="titlebar-icon">📄</span>
+    <span class="titlebar-label">About</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('about')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('about')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content">
+    <h2>ThePlanetZero</h2>
+    <p>A digital creator building worlds, games, and systems.</p>
+    <div class="statGrid" id="statGrid">
+      <div class="stat"><span class="statVal" id="stat-boots">0</span><span class="statKey">Boots</span></div>
+      <div class="stat"><span class="statVal" id="stat-folders">0</span><span class="statKey">Folders</span></div>
+      <div class="stat"><span class="statVal" id="stat-achievements">0</span><span class="statKey">Achievements</span></div>
+    </div>
+    <button class="dangerBtn" onclick="OS.reset()">Reset PlanetOS</button>
+  </div>
+</div>
+
+<div class="window" id="images" data-title="Images">
+  <div class="titlebar">
+    <span class="titlebar-icon">🖼️</span>
+    <span class="titlebar-label">Images</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('images')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('images')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content imageFolder">
+    <div class="imageFile" onclick="OS.wallpaper.preview('Images/Wallpapers/Portal2.png')">
+      <img src="Images/Wallpapers/Portal2.png" alt="Portal 2">
+      <span>Portal2.png</span>
+    </div>
+    <div class="imageFile" onclick="OS.wallpaper.preview('Images/Wallpapers/Ultrakill.png')">
+      <img src="Images/Wallpapers/Ultrakill.png" alt="Ultrakill">
+      <span>Ultrakill.png</span>
+    </div>
+    <div class="imageFile" onclick="OS.wallpaper.preview('Images/Wallpapers/Blocktales.png')">
+      <img src="Images/Wallpapers/Blocktales.png" alt="Blocktales">
+      <span>Blocktales.png</span>
+    </div>
+    <div class="imageFile" onclick="OS.wallpaper.preview('Images/Wallpapers/Wubbox.png')">
+      <img src="Images/Wallpapers/Wubbox.png" alt="Wubbox">
+      <span>Wubbox.png</span>
+    </div>
+  </div>
+</div>
+
+<div class="window" id="imageViewer" data-title="Image Viewer">
+  <div class="titlebar">
+    <span class="titlebar-icon">🖼️</span>
+    <span class="titlebar-label">Image Viewer</span>
+    <div class="titlebar-btns">
+      <button class="winBtn minimize" onclick="OS.windows.close('imageViewer')" title="Minimize"></button>
+      <button class="winBtn maximize" title="Maximize"></button>
+      <button class="winBtn close"    onclick="OS.windows.close('imageViewer')" title="Close"></button>
+    </div>
+  </div>
+  <div class="content">
+    <img id="previewImage" class="previewImage" alt="Preview">
+    <div class="viewerActions">
+      <button onclick="OS.wallpaper.set()">Set as Wallpaper</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASKBAR -->
+<div class="taskbar">
+  <button class="startBtn" onclick="OS.startMenu.toggle()">
+    <span class="startIcon">⊕</span> Start
+  </button>
+  <div id="taskItems" class="taskItems"></div>
+  <div class="taskbarRight">
+    <span id="taskClock" class="taskClock">00:00</span>
+  </div>
+</div>
+
+<!-- START MENU -->
+<div class="startMenu" id="startMenu">
+  <div class="startHeader">PlanetOS v2</div>
+  <div class="startItem" onclick="OS.windows.open('projects')">📁 Projects</div>
+  <div class="startItem" onclick="OS.windows.open('series')">📁 Series</div>
+  <div class="startItem" onclick="OS.windows.open('updates')">📡 Updates</div>
+  <div class="startItem" onclick="OS.windows.open('music')">🎵 Music</div>
+  <div class="startItem" onclick="OS.windows.open('about')">📄 About</div>
+  <div class="startDivider"></div>
+  <div class="startItem danger" onclick="OS.reset()">⚠ Reset OS</div>
+</div>
+
+<div id="notificationContainer"></div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,741 @@
+/* ===========================
+   PlanetOS v2 — style.css
+   Dark space OS aesthetic
+   =========================== */
+
+:root {
+  --bg-deep:    #0a0a0f;
+  --bg-panel:   #111118;
+  --bg-window:  #15151f;
+  --bg-titlebar:#1a1a2e;
+  --border:     #2a2a40;
+  --border-hi:  #3a3a58;
+  --text:       #e8f0ff;
+  --text-muted: #6a6a8a;
+  --accent:     #4fc3f7;
+  --accent-dim: #1e4f6e;
+  --purple:     #7c3aed;
+  --orange:     #ff6b35;
+  --red:        #ff5f5f;
+  --yellow:     #ffc940;
+  --green:      #50fa7b;
+  --shadow:     0 8px 32px rgba(0,0,0,0.6);
+  --radius:     8px;
+  --font-ui:    "Segoe UI", system-ui, sans-serif;
+  --font-mono:  "Courier New", monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-ui);
+  background: var(--bg-deep);
+  color: var(--text);
+  overflow: hidden;
+  height: 100vh;
+  user-select: none;
+}
+
+/* ===========================
+   LOGIN SCREEN — Windows 7 style
+   =========================== */
+
+#loginScreen {
+  position: fixed;
+  inset: 0;
+  /* Win7 signature: deep blue radial spotlight on a near-black base */
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 45%,
+      #1a6bbf 0%,
+      #0f4a99 30%,
+      #082060 65%,
+      #020818 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.8s ease;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+#loginScreen.fade {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Subtle bottom strip like Win7's taskbar band */
+#loginScreen::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.55));
+  pointer-events: none;
+}
+
+/* The glassy user panel — Win7 used a tall frosted rectangle center-screen */
+.loginPanel {
+  position: relative;
+  text-align: center;
+  padding: 44px 64px 36px;
+  /* Win7 glass: semi-transparent with a strong white highlight at the top */
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(0,0,0,0.18) 100%
+  );
+  border: 1px solid rgba(255,255,255,0.30);
+  border-bottom-color: rgba(255,255,255,0.10);
+  border-radius: 4px;
+  box-shadow:
+    0 2px 0  rgba(255,255,255,0.25) inset,  /* top glint */
+    0 32px 80px rgba(0,0,0,0.55),
+    0  0  120px rgba(30,100,220,0.25);
+  backdrop-filter: blur(14px) saturate(1.4);
+  min-width: 300px;
+}
+
+/* Thin top-edge highlight bar, very Win7 */
+.loginGlow {
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+/* Avatar — Win7 used a large square picture with rounded corners */
+.userAvatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.55);
+  box-shadow:
+    0 0  0  1px rgba(0,0,0,0.4),
+    0 4px 16px rgba(0,0,0,0.5);
+  margin-bottom: 16px;
+  object-fit: cover;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.username {
+  font-size: 21px;
+  font-weight: 300;          /* Win7 used light weight Segoe UI */
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  margin-bottom: 4px;
+}
+
+.status {
+  font-size: 12px;
+  color: rgba(255,255,255,0.60);
+  margin: 0 0 28px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* Win7 arrow button — the glowing blue orb-style "Log in" arrow */
+.loginBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 24px 0 20px;
+  height: 36px;
+  /* Win7 button: glassy gradient, rounded pill */
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.30) 0%,
+    rgba(255,255,255,0.08) 49%,
+    rgba(0,40,120,0.30)    50%,
+    rgba(0,60,180,0.20)    100%
+  );
+  border: 1px solid rgba(255,255,255,0.45);
+  border-bottom-color: rgba(255,255,255,0.15);
+  border-radius: 18px;
+  color: #ffffff;
+  font-size: 13px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.20) inset,
+    0 4px 12px rgba(0,0,0,0.4),
+    0 0 18px rgba(80,160,255,0.25);
+  transition: box-shadow 0.2s, background 0.2s;
+}
+
+.loginBtn:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.38) 0%,
+    rgba(255,255,255,0.14) 49%,
+    rgba(0,60,160,0.40)    50%,
+    rgba(0,80,220,0.30)    100%
+  );
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.25) inset,
+    0 4px 16px rgba(0,0,0,0.5),
+    0 0 28px rgba(80,160,255,0.45);
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* The right-pointing arrow icon inside the button */
+.loginBtnIcon {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.loginVersion {
+  margin-top: 22px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.04em;
+}
+
+/* ===========================
+   DESKTOP
+   =========================== */
+
+.desktop {
+  width: 100vw;
+  height: calc(100vh - 44px);
+  padding: 24px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px;
+  position: relative;
+}
+
+.icon {
+  width: 88px;
+  text-align: center;
+  cursor: pointer;
+  padding: 10px 4px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.icon:hover {
+  background: rgba(79,195,247,0.07);
+  border-color: rgba(79,195,247,0.2);
+}
+
+.icon:active {
+  background: rgba(79,195,247,0.14);
+}
+
+.iconGraphic {
+  font-size: 34px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.icon span {
+  display: block;
+  font-size: 11px;
+  color: var(--text);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.desktopIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* ===========================
+   WINDOWS
+   =========================== */
+
+.window {
+  position: absolute;
+  width: 520px;
+  min-height: 200px;
+  background: var(--bg-window);
+  border: 1px solid #0d1628;
+  border-top: 2px solid var(--accent);
+  border-radius: 0;
+  display: none;
+  top: 100px;
+  left: 180px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.4);
+  overflow: hidden;
+  transition: opacity 0.12s, transform 0.12s;
+}
+
+.window.opening {
+  animation: windowOpen 0.15s ease-out;
+}
+
+@keyframes windowOpen {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Titlebar */
+.titlebar {
+  background: linear-gradient(180deg, #1e2a4a 0%, #162040 100%);
+  border-bottom: 1px solid #0d1628;
+  padding: 0 0 0 10px;
+  height: 32px;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.titlebar-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.titlebar-label {
+  font-size: 12px;
+  font-weight: 400;
+  color: #c8d8f0;
+  flex: 1;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Windows-style caption buttons on the RIGHT */
+.titlebar-btns {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.winBtn {
+  width: 46px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: #c8d8f0;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  padding: 0;
+  transition: background 0.1s, color 0.1s;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.winBtn:hover {
+  background: rgba(79,195,247,0.15);
+  color: #fff;
+  border-color: transparent;
+}
+
+.winBtn.close:hover {
+  background: #c42b1c;
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Unicode symbols that look like Win11 chrome */
+.winBtn.minimize::after { content: "─"; font-size: 11px; }
+.winBtn.maximize::after { content: "□"; font-size: 12px; }
+.winBtn.close::after    { content: "✕"; font-size: 11px; }
+
+/* Content */
+.content {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: calc(100% - 36px);
+}
+
+.content h2 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.content p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.muted {
+  color: var(--text-muted) !important;
+}
+
+/* Image window */
+.imageFolder {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 16px;
+}
+
+.imageFile {
+  cursor: pointer;
+  text-align: center;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.imageFile:hover {
+  border-color: var(--accent);
+  background: rgba(79,195,247,0.06);
+}
+
+.imageFile img {
+  width: 100%;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.imageFile span {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previewImage {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.viewerActions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+/* About stats grid */
+.statGrid {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0 16px;
+}
+
+.stat {
+  flex: 1;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.statVal {
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.statKey {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Buttons */
+button {
+  padding: 8px 18px;
+  background: var(--bg-panel);
+  color: var(--text);
+  border: 1px solid var(--border-hi);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+button:hover {
+  border-color: var(--accent);
+  background: rgba(79,195,247,0.08);
+}
+
+.dangerBtn {
+  background: rgba(255,95,95,0.08);
+  border-color: rgba(255,95,95,0.3);
+  color: var(--red);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.dangerBtn:hover {
+  background: rgba(255,95,95,0.18);
+  border-color: var(--red);
+}
+
+.trackLabel {
+  margin-top: 12px !important;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ===========================
+   TASKBAR
+   =========================== */
+
+.taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 44px;
+  background: rgba(10, 10, 20, 0.92);
+  border-top: 1px solid var(--border-hi);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  z-index: 8000;
+}
+
+.startBtn {
+  height: 30px;
+  min-width: 76px;
+  padding: 0 14px;
+  background: var(--accent);
+  color: var(--bg-deep);
+  border: none;
+  border-radius: 5px;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.04em;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+
+.startBtn:hover {
+  background: #81d4fa;
+  border-color: transparent;
+}
+
+.startIcon {
+  font-size: 14px;
+}
+
+.taskItems {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.taskItem {
+  height: 30px;
+  padding: 0 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  transition: background 0.15s, border-color 0.15s;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskItem:hover {
+  background: var(--bg-window);
+  border-color: var(--accent);
+}
+
+.taskItem.active {
+  border-color: var(--accent);
+  background: rgba(79,195,247,0.1);
+}
+
+.taskbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 8px;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.taskClock {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ===========================
+   START MENU
+   =========================== */
+
+.startMenu {
+  position: fixed;
+  bottom: 48px;
+  left: 8px;
+  width: 200px;
+  background: rgba(15, 15, 25, 0.95);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+  display: none;
+  overflow: hidden;
+  z-index: 9000;
+}
+
+.startHeader {
+  padding: 12px 16px 8px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.startItem {
+  padding: 10px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.12s, color 0.12s;
+}
+
+.startItem:hover {
+  background: rgba(79,195,247,0.1);
+  color: var(--accent);
+}
+
+.startItem.danger {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.startItem.danger:hover {
+  background: rgba(255,95,95,0.1);
+  color: var(--red);
+}
+
+.startDivider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* ===========================
+   NOTIFICATIONS
+   =========================== */
+
+#notificationContainer {
+  position: fixed;
+  right: 16px;
+  bottom: 58px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+.notification {
+  width: 300px;
+  background: rgba(15, 15, 25, 0.96);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 12px 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  transform: translateX(340px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
+  pointer-events: auto;
+  backdrop-filter: blur(12px);
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification.hide {
+  transform: translateX(340px);
+  opacity: 0;
+}
+
+.notificationIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.notificationTitle {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.notificationBody {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Accent bar by type */
+.notification[data-type="award"] { border-left: 3px solid var(--yellow); }
+.notification[data-type="alert"] { border-left: 3px solid var(--orange); }
+.notification[data-type="notice"]{ border-left: 3px solid var(--accent); }
