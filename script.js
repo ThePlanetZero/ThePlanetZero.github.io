@@ -320,15 +320,21 @@ const OS = {
       `;
       const grid = document.getElementById("playlistGrid");
       MUSIC_LIBRARY.forEach((pl, i) => {
-        const card = document.createElement("div");
-        card.className = "playlistCard";
-        card.innerHTML = `
-          <div class="playlistCardName">${pl.name}</div>
-          <div class="playlistCardCount">${pl.tracks.length} track${pl.tracks.length !== 1 ? "s" : ""}</div>
-        `;
-        card.onclick = () => this._openPlaylist(i);
-        grid.appendChild(card);
-      });
+  // Create a button element instead of a div
+  const btn = document.createElement("button");
+  btn.type = "button"; // Prevents accidental form submissions
+  btn.className = "playlistCard";
+  
+  btn.innerHTML = `
+    <div class="playlistCardName">${pl.name}</div>
+    <div class="playlistCardCount">${pl.tracks.length} track${pl.tracks.length !== 1 ? "s" : ""}</div>
+  `;
+  
+  // The onclick remains, but now triggers on both mouse and keyboard events
+  btn.onclick = () => this._openPlaylist(i);
+  
+  grid.appendChild(btn);
+});
     },
 
     /* ---- VIEW: Track list ---- */
@@ -346,10 +352,10 @@ const OS = {
         </div>
         <div class="trackListWrap">
           <div class="playlistBanner">
-            <button class="playlistBannerInfo">
+            <div class="playlistBannerInfo">
               <div class="playlistBannerName">${pl.name}</div>
               <div class="playlistBannerCount">${pl.tracks.length} tracks</div>
-            </button>
+            </div>
           </div>
           <div class="trackList" id="trackList"></div>
         </div>
@@ -379,9 +385,8 @@ const OS = {
           <div class="trackNum">${i + 1}</div>
           <div class="trackInfo role="button"">
             <div class="trackName" id="track-name-${i}">${this._stripExt(filename)}</div>
-            <div class="trackArtist" id="track-artist-${i}">—</div>
           </div>
-          <div class="trackDuration" id="track-dur-${i}">—</div>
+          <div class="trackDuration" id="track-dur-${i}">Unkown duration?</div>
         `;
         row.onclick = () => this.playTrack(i);
         list.appendChild(row);
