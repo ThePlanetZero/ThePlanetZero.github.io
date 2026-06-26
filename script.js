@@ -541,15 +541,12 @@ const OS = {
       const meta = (pl && this.currentTrack !== null) ? this.trackMeta[this.currentTrack] : null;
 
       const title  = meta?.title  || (pl ? this._stripExt(pl.tracks[this.currentTrack]) : "No track selected");
-      const artist = meta?.artist || "—";
-      const cover  = meta?.cover  || pl?.cover || "";
+      const artist = meta?.artist || "Unkown Artist";
 
       const npTitle  = document.getElementById("npTitle");
       const npArtist = document.getElementById("npArtist");
-      const npCover  = document.getElementById("npCover");
       if (npTitle)  npTitle.textContent  = title;
       if (npArtist) npArtist.textContent = artist;
-      if (npCover)  npCover.src          = cover;
 
       this._updatePlayBtn();
     },
