@@ -346,10 +346,10 @@ const OS = {
         </div>
         <div class="trackListWrap">
           <div class="playlistBanner">
-            <div class="playlistBannerInfo" role="button">
+            <button class="playlistBannerInfo">
               <div class="playlistBannerName">${pl.name}</div>
               <div class="playlistBannerCount">${pl.tracks.length} tracks</div>
-            </div>
+            </button>
           </div>
           <div class="trackList" id="trackList"></div>
         </div>
