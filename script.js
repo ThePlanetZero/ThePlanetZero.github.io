@@ -21,7 +21,7 @@ const MUSIC_LIBRARY = [
     tracks: [
       "Circles.mp3",
       "Last Breath.mp3",
-      "This A must.mp3",
+      "This A Must.mp3",
       "Whatever Works.mp3"
     ]
   },
@@ -323,7 +323,6 @@ const OS = {
         const card = document.createElement("div");
         card.className = "playlistCard";
         card.innerHTML = `
-          <img src="${pl.cover}" class="playlistCover" onerror="this.src=''" alt="${pl.name}" width="150">
           <div class="playlistCardName">${pl.name}</div>
           <div class="playlistCardCount">${pl.tracks.length} track${pl.tracks.length !== 1 ? "s" : ""}</div>
         `;
@@ -347,7 +346,6 @@ const OS = {
         </div>
         <div class="trackListWrap">
           <div class="playlistBanner">
-            <img src="${pl.cover}" class="playlistBannerImg" onerror="this.style.display='none'" alt="${pl.name}" width="150">
             <div class="playlistBannerInfo">
               <div class="playlistBannerName">${pl.name}</div>
               <div class="playlistBannerCount">${pl.tracks.length} tracks</div>
