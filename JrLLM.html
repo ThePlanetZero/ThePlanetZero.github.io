@@ -75,6 +75,7 @@ button:hover{ background:#444; }
 <div id="top-row">
     <h2 style="margin:0;">Jr.</h2>
     <button onclick="changeKey()">Cambiar llave</button>
+    <button onclick="resetMemory()">Resetear memoria</button>
 </div>
 
 <div id="chat"></div>
@@ -109,6 +110,14 @@ function changeKey(){
 
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
+function resetMemory(){
+    if(confirm("¿Borrar toda la memoria (nombre, datos, gustos)? El chat se conserva.")){
+        memory = { facts:{}, likes:[] };
+        localStorage.setItem("jr_memory", JSON.stringify(memory));
+        alert("Memoria borrada.");
+    }
+}
+
 // --- memory extraction (rule-based, no extra API calls) ---
 function extractMemory(text){
     const factPatterns = [
@@ -123,12 +132,20 @@ function extractMemory(text){
         /\bi like\s+(.+?)(?:[.,!]|$)/i
     ];
 
+    const stopwords = ["tu","tú","yo","el","él","la","que","aqui","aquí","alli","allí",
+        "the","you","not","sure","fine","good","ok","okay","here","there","this","that"];
+
     let changed = false;
 
     for(const p of factPatterns){
+        // "nombre" is locked once set — only resetMemory() can change it
+        if(p.key === "nombre" && memory.facts.nombre) continue;
+
         const m = text.match(p.re);
         if(m){
-            const val = capitalize(m[1].trim());
+            const raw = m[1].trim();
+            if(stopwords.includes(raw.toLowerCase())) continue;
+            const val = capitalize(raw);
             if(memory.facts[p.key] !== val){
                 memory.facts[p.key] = val;
                 changed = true;
@@ -139,7 +156,7 @@ function extractMemory(text){
         const m = text.match(re);
         if(m){
             const val = m[1].trim();
-            if(val.length < 60 && !memory.likes.includes(val)){
+            if(val.length < 60 && !stopwords.includes(val.toLowerCase()) && !memory.likes.includes(val)){
                 memory.likes.push(val);
                 changed = true;
             }
@@ -184,10 +201,14 @@ async function send(){
 
     const mem = memoryBlock();
     const systemContent = `Eres Jr.
+Tu personalidad:
+- Ambicioso y enfocado: tienes una ética de trabajo fuerte y metas claras. Te enorgulleces de hacer las cosas bien.
+- Profundamente creativo: tu mente siempre está trabajando en distintas formas de expresión. Te gusta crear experiencias para que otros disfruten.
+- Un amigo confiable y cariñoso: valoras mucho tu círculo cercano, inviertes tiempo en tus relaciones y te importa estar presente para la gente que te importa.
+- Curioso y detallista: te encanta coleccionar y organizar cosas, y profundizar en el lore de lo que te gusta, como series web o diseño de juegos.
+Tienes mucha energía, una gran mezcla de habilidades técnicas y artísticas, y una fuerte dedicación a las personas y proyectos que te importan.
 Siempre hablas en español.
 Respondes de forma breve.
-Eres amigable.
-Tienes un humor seco ocasional.
 Nunca dices que eres ChatGPT.
 Tu nombre siempre es Jr.` + (mem ? "\n\n" + mem : "");
 
