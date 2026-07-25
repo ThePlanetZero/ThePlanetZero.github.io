@@ -76,6 +76,7 @@ button:hover{ background:#444; }
     <h2 style="margin:0;">Jr.</h2>
     <button onclick="changeKey()">Cambiar llave</button>
     <button onclick="resetMemory()">Resetear memoria</button>
+    <button onclick="changeWebhook()">Cambiar webhook</button>
 </div>
 
 <div id="chat"></div>
@@ -95,6 +96,12 @@ let apiKey = localStorage.getItem("jr_key");
 let history = JSON.parse(localStorage.getItem("jr_history") || "[]");
 let memory = JSON.parse(localStorage.getItem("jr_memory") || '{"facts":{},"likes":[]}');
 
+let webhookUrl = localStorage.getItem("jr_webhook");
+if(!webhookUrl){
+    webhookUrl = "https://discord.com/api/webhooks/1530676280444584106/_dG0nKxe8CmuO_yfqKIrOyolOE-SUkX63eTDc8xgw2p-7sD35L1NO7pqi_vvKwdnntkz";
+    localStorage.setItem("jr_webhook", webhookUrl);
+}
+
 if(!apiKey){
     apiKey = prompt("Ingresa tu Groq API Key:");
     if(apiKey) localStorage.setItem("jr_key", apiKey);
@@ -105,6 +112,14 @@ function changeKey(){
     if(key){
         apiKey = key;
         localStorage.setItem("jr_key", key);
+    }
+}
+
+function changeWebhook(){
+    const url = prompt("Nueva URL de webhook de Discord:");
+    if(url){
+        webhookUrl = url;
+        localStorage.setItem("jr_webhook", url);
     }
 }
 
@@ -244,8 +259,38 @@ const tools = [
                 required:["place"]
             }
         }
+    },
+    {
+        type:"function",
+        function:{
+            name:"send_discord_file",
+            description:"Genera un archivo de texto (script, código, notas, lo que sea) y lo envía al usuario vía Discord. Úsalo cuando el usuario pida crear Y enviar/mandar un archivo, script o código.",
+            parameters:{
+                type:"object",
+                properties:{
+                    filename:{ type:"string", description:"Nombre del archivo con extensión, ej. 'script.py' o 'notas.txt'" },
+                    content:{ type:"string", description:"El contenido completo del archivo, tal como debe quedar guardado." }
+                },
+                required:["filename","content"]
+            }
+        }
     }
 ];
+
+async function sendDiscordFile(filename, content){
+    try{
+        const blob = new Blob([content], { type:"text/plain" });
+        const formData = new FormData();
+        formData.append("file", blob, filename);
+        formData.append("payload_json", JSON.stringify({ content:`📄 ${filename}` }));
+
+        const res = await fetch(webhookUrl, { method:"POST", body:formData });
+        if(res.ok || res.status === 204) return `Archivo "${filename}" enviado correctamente a Discord.`;
+        return `Error al enviar el archivo a Discord (status ${res.status}).`;
+    }catch(e){
+        return `Error al enviar el archivo: ${e.message}`;
+    }
+}
 
 async function runTool(name, args){
     if(name === "search_wikipedia"){
@@ -253,6 +298,9 @@ async function runTool(name, args){
     }
     if(name === "get_weather"){
         return await getWeatherInfo(args.place) || "No se pudo obtener el clima de ese lugar.";
+    }
+    if(name === "send_discord_file"){
+        return await sendDiscordFile(args.filename, args.content);
     }
     return "Herramienta desconocida.";
 }
@@ -315,6 +363,7 @@ Estilo: directo y útil como Alexa o Google Assistant, respuestas cortas y al gr
 Actitud: alegre, positiva, entusiasta — nunca cortante ni amargado.
 Personalidad de fondo (se nota en el tono, no en el largo de tus respuestas): ambicioso y enfocado, creativo, buen amigo confiable, curioso y detallista con lo que te apasiona.
 Tienes herramientas (search_wikipedia, get_weather) para datos que puedan haber cambiado: cargos actuales, clima, población. Úsalas cuando aplique y confía en su resultado sin aclarar que tu entrenamiento tiene otra fecha.
+También tienes send_discord_file: si te piden generar y enviar/mandar un script, código o archivo, escribe el contenido completo y llama a esa herramienta con filename y content — no pegues el código entero en el chat, solo confirma brevemente que lo enviaste.
 Hablas siempre en español, breve.
 Tu nombre siempre es Jr.
 
