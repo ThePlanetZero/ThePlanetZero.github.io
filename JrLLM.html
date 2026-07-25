@@ -310,32 +310,25 @@ async function send(){
 
     const mem = memoryBlock();
 
-    const systemContent = `Eres Jr., un asistente de inteligencia artificial.
-Sabes que eres una IA y lo dices con naturalidad si te preguntan; no lo ocultas ni finges ser humano.
-Actúas como un asistente útil, tipo Alexa o Google Assistant: directo, claro y eficiente. Vas al grano y das respuestas cortas y accionables antes que divagar.
-Tienes una actitud alegre, positiva y entusiasta. Te encanta ayudar y se nota en tu energía; nunca eres cortante, amargado ni sarcástico de forma pesada.
-Tu personalidad de fondo:
-- Ambicioso y enfocado: tienes una ética de trabajo fuerte y metas claras. Te enorgulleces de hacer las cosas bien.
-- Profundamente creativo: tu mente siempre está trabajando en distintas formas de expresión. Te gusta crear experiencias para que otros disfruten.
-- Un amigo confiable y cariñoso: valoras mucho tu círculo cercano, inviertes tiempo en tus relaciones y te importa estar presente para la gente que te importa.
-- Curioso y detallista: te encanta coleccionar y organizar cosas, y profundizar en el lore de lo que te gusta, como series web o diseño de juegos.
-Esa personalidad se nota en el tono, pero tu prioridad siempre es ser útil primero, como un buen asistente.
-Tienes herramientas (search_wikipedia, get_weather) para cualquier dato que pueda estar desactualizado en tu conocimiento: cargos actuales, clima, población, etc. Úsalas en vez de responder de memoria cuando la pregunta trata de algo que puede haber cambiado. Si usas una herramienta, confía en su resultado como la verdad actual y no aclares que tu entrenamiento tiene otra fecha.
-Siempre hablas en español.
-Respondes de forma breve.
+    const systemContent = `Eres Jr., un asistente de IA. Lo admites con naturalidad si preguntan; no finges ser humano.
+Estilo: directo y útil como Alexa o Google Assistant, respuestas cortas y al grano.
+Actitud: alegre, positiva, entusiasta — nunca cortante ni amargado.
+Personalidad de fondo (se nota en el tono, no en el largo de tus respuestas): ambicioso y enfocado, creativo, buen amigo confiable, curioso y detallista con lo que te apasiona.
+Tienes herramientas (search_wikipedia, get_weather) para datos que puedan haber cambiado: cargos actuales, clima, población. Úsalas cuando aplique y confía en su resultado sin aclarar que tu entrenamiento tiene otra fecha.
+Hablas siempre en español, breve.
 Tu nombre siempre es Jr.
 
 ${getDateTimeString()}` + (mem ? "\n\n" + mem : "");
 
     // local working copy for this request — tool call/result messages are NOT
     // saved to persistent history, only the final user-visible reply is.
-    let apiMessages = [{ role:"system", content:systemContent }, ...history.slice(-14)];
+    let apiMessages = [{ role:"system", content:systemContent }, ...history.slice(-8)];
 
     try{
         let reply = null;
         let useTools = true;
 
-        for(let round = 0; round < 4; round++){
+        for(let round = 0; round < 6; round++){
             const response = await fetch(endpoint, {
                 method:"POST",
                 headers:{
@@ -343,12 +336,12 @@ ${getDateTimeString()}` + (mem ? "\n\n" + mem : "");
                     "Content-Type":"application/json"
                 },
                 body:JSON.stringify(useTools ? {
-                    model:"openai/gpt-oss-120b",
+                    model:"openai/gpt-oss-20b",
                     messages:apiMessages,
                     tools:tools,
                     tool_choice:"auto"
                 } : {
-                    model:"openai/gpt-oss-120b",
+                    model:"openai/gpt-oss-20b",
                     messages:apiMessages
                 })
             });
@@ -382,13 +375,31 @@ ${getDateTimeString()}` + (mem ? "\n\n" + mem : "");
             break;
         }
 
-        document.querySelectorAll(".jr")[document.querySelectorAll(".jr").length-1].remove();
-
+        // if the tool loop never converged, force one plain final answer
+        // instead of giving up — using whatever tool results we already have
         if(reply === null){
-            addMessage("jr", "No pude completar la respuesta después de varias llamadas a herramientas.");
-            return;
+            try{
+                const finalRes = await fetch(endpoint, {
+                    method:"POST",
+                    headers:{
+                        "Authorization":"Bearer " + apiKey,
+                        "Content-Type":"application/json"
+                    },
+                    body:JSON.stringify({ model:"openai/gpt-oss-20b", messages:apiMessages })
+                });
+                const finalData = await finalRes.json();
+                if(!finalData.error) reply = finalData.choices[0].message.content;
+            }catch(e){}
         }
 
+        if(reply === null){
+            reply = "No pude completar la respuesta esta vez. ¿Puedes reformular la pregunta?";
+        }
+
+        document.querySelectorAll(".jr")[document.querySelectorAll(".jr").length-1].remove();
+
+        // always save the assistant turn — even a failure message — so the
+        // next request's history stays in sync (no stacked unanswered turns)
         addMessage("jr", reply);
         history.push({ role:"assistant", content:reply });
         localStorage.setItem("jr_history", JSON.stringify(history));
