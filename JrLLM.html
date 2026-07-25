@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Jr. Console</title>
+
+<style>
+
+body{
+    background:#1b1b1b;
+    color:white;
+    font-family:Consolas,monospace;
+    max-width:900px;
+    margin:auto;
+    padding:30px;
+}
+
+textarea{
+    width:100%;
+    height:80px;
+    background:#252525;
+    color:white;
+    border:none;
+    padding:10px;
+    font-size:16px;
+}
+
+button{
+    margin-top:10px;
+    padding:10px 18px;
+    cursor:pointer;
+}
+
+#chat{
+    margin-top:25px;
+    background:#252525;
+    padding:15px;
+    border-radius:10px;
+    min-height:300px;
+    white-space:pre-wrap;
+}
+
+.user{
+    color:#87cefa;
+}
+
+.jr{
+    color:#90ee90;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>Jr. Console</h1>
+
+<textarea id="prompt">Hola Jr.</textarea>
+
+<br>
+
+<button onclick="send()">Enviar</button>
+<button onclick="changeKey()">Cambiar llave</button>
+<button onclick="clearChat()">Limpiar Chat</button>
+
+<div id="chat"></div>
+
+<script>
+
+const endpoint =
+"https://api.groq.com/openai/v1/chat/completions";
+
+let savedKey = localStorage.getItem("jr_key");
+
+if(!savedKey){
+
+    savedKey = prompt("Enter your Groq API Key:");
+
+    if(savedKey){
+
+        localStorage.setItem("jr_key",savedKey);
+
+    }
+
+}
+
+function changeKey(){
+
+    let key = prompt("New Groq API Key:");
+
+    if(key){
+
+        localStorage.setItem("jr_key",key);
+
+        savedKey = key;
+
+        alert("Saved!");
+
+    }
+
+}
+
+function addMessage(type,text){
+
+    chat.innerHTML +=
+        `<div class="${type}"><b>${
+        type=="user"?"You":"Jr"
+        }:</b> ${text}</div><br>`;
+
+    chat.scrollTop = chat.scrollHeight;
+
+}
+
+function clearChat(){
+
+    chat.innerHTML="";
+
+}
+
+async function send(){
+
+    const promptBox =
+        document.getElementById("prompt");
+
+    const prompt =
+        promptBox.value.trim();
+
+    if(prompt=="") return;
+
+    addMessage("user",prompt);
+
+    promptBox.value="";
+
+    addMessage("jr","Pensando...");
+
+    try{
+
+        const response =
+        await fetch(endpoint,{
+
+            method:"POST",
+
+            headers:{
+
+                "Authorization":"Bearer "+savedKey,
+
+                "Content-Type":"application/json"
+
+            },
+
+            body:JSON.stringify({
+
+                model:"llama-3.3-70b-versatile",
+
+                messages:[
+
+                    {
+                        role:"system",
+                        content:
+`Eres Jr.
+
+Siempre hablas en español.
+
+Respondes de forma breve.
+
+Eres amigable.
+
+Tienes un humor seco ocasional.
+
+Nunca dices que eres ChatGPT.
+
+Tu nombre siempre es Jr.`
+
+                    },
+
+                    {
+
+                        role:"user",
+
+                        content:prompt
+
+                    }
+
+                ]
+
+            })
+
+        });
+
+        const data =
+            await response.json();
+
+        document.querySelectorAll(".jr")
+        [
+            document.querySelectorAll(".jr").length-1
+        ].remove();
+
+        if(data.error){
+
+            addMessage(
+                "jr",
+                data.error.message
+            );
+
+            return;
+
+        }
+
+        addMessage(
+            "jr",
+            data.choices[0].message.content
+        );
+
+    }
+
+    catch(err){
+
+        document.querySelectorAll(".jr")
+        [
+            document.querySelectorAll(".jr").length-1
+        ].remove();
+
+        addMessage("jr",err.message);
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
