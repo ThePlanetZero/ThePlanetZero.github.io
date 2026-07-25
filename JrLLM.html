@@ -1,1445 +1,238 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Jr. — Prototipo</title>
-  <style>
-    :root {
-      --bg: #070b14;
-      --bg-2: #0d1424;
-      --panel: rgba(15, 22, 38, 0.92);
-      --panel-2: rgba(19, 28, 47, 0.95);
-      --line: rgba(120, 160, 255, 0.15);
-      --text: #eaf0ff;
-      --muted: #93a4c7;
-      --accent: #67b7ff;
-      --accent-2: #8f7bff;
-      --good: #56f0b6;
-      --warn: #ffd36b;
-      --bad: #ff7b8a;
-      --bubble-user: linear-gradient(135deg, rgba(103,183,255,0.22), rgba(143,123,255,0.16));
-      --bubble-assistant: rgba(17, 26, 45, 0.96);
-      --shadow: 0 24px 80px rgba(0,0,0,0.45);
-      --radius: 22px;
-      --radius-sm: 14px;
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    }* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  margin: 0;
-  font-family: var(--font);
-  color: var(--text);
-  background:
-    radial-gradient(1200px 700px at 15% 10%, rgba(103,183,255,0.16), transparent 42%),
-    radial-gradient(900px 600px at 90% 10%, rgba(143,123,255,0.14), transparent 35%),
-    radial-gradient(1000px 800px at 50% 100%, rgba(86,240,182,0.06), transparent 35%),
-    linear-gradient(180deg, var(--bg), var(--bg-2));
-  overflow: hidden;
-}
-
-.app {
-  height: 100vh;
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 18px;
-  padding: 18px;
-}
-
-.sidebar,
-.main {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-  overflow: hidden;
-}
-
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  min-width: 280px;
-}
-
-.brand {
-  padding: 22px 20px 18px;
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-}
-
-.brand-top {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-
-.avatar {
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
-  background:
-    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(255,255,255,0.2) 18%, transparent 18%),
-    linear-gradient(135deg, rgba(103,183,255,0.9), rgba(143,123,255,0.85));
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 10px 25px rgba(103,183,255,0.2);
-  position: relative;
-  flex: 0 0 auto;
-}
-
-.avatar::after {
-  content: '';
-  position: absolute;
-  inset: 12px 14px 14px 12px;
-  border-radius: 999px;
-  background: rgba(6, 10, 18, 0.42);
-  box-shadow:
-    0 0 0 6px rgba(255,255,255,0.05) inset,
-    0 0 0 1px rgba(255,255,255,0.08) inset;
-}
-
-.brand h1 {
-  margin: 0;
-  font-size: 20px;
-  line-height: 1.1;
-  letter-spacing: 0.2px;
-}
-
-.brand p {
-  margin: 6px 0 0;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.status-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 999px;
-  background: var(--good);
-  box-shadow: 0 0 14px rgba(86,240,182,0.6);
-}
-
-.sidebar-section {
-  padding: 18px 16px 0;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-.chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chip {
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,0.03);
-  color: var(--text);
-  padding: 8px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
-}
-
-.chip:hover {
-  transform: translateY(-1px);
-  background: rgba(255,255,255,0.06);
-  border-color: rgba(103,183,255,0.25);
-}
-
-.memory-list,
-.chat-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.memory-item,
-.chat-item {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 12px;
-  margin-bottom: 10px;
-}
-
-.memory-item .k {
-  color: var(--accent);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 5px;
-}
-
-.memory-item .v,
-.chat-item .v {
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.5;
-  word-break: break-word;
-}
-
-.memory-item .meta {
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.sidebar-bottom {
-  margin-top: auto;
-  padding: 16px;
-  border-top: 1px solid var(--line);
-  display: grid;
-  gap: 10px;
-}
-
-.btn {
-  appearance: none;
-  border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-  color: var(--text);
-  padding: 12px 14px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 13px;
-  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, opacity 0.16s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-  border-color: rgba(103,183,255,0.3);
-  background: rgba(255,255,255,0.08);
-}
-
-.btn.primary {
-  border-color: rgba(103,183,255,0.32);
-  background: linear-gradient(135deg, rgba(103,183,255,0.22), rgba(143,123,255,0.18));
-}
-
-.btn.danger {
-  border-color: rgba(255,123,138,0.25);
-}
-
-.main {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-width: 0;
-}
-
-.topbar {
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-}
-
-.topbar .left {
-  min-width: 0;
-}
-
-.topbar h2 {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.2;
-}
-
-.topbar .sub {
-  margin-top: 5px;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.4;
-}
-
-.topbar-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.chat-wrap {
-  overflow: hidden;
-  position: relative;
-  min-width: 0;
-}
-
-.chat {
-  height: 100%;
-  overflow-y: auto;
-  padding: 20px;
-  scroll-behavior: smooth;
-}
-
-.welcome {
-  margin: 10px auto 26px;
-  max-width: 760px;
-  border: 1px solid rgba(103,183,255,0.17);
-  background: linear-gradient(135deg, rgba(103,183,255,0.08), rgba(143,123,255,0.05));
-  border-radius: 22px;
-  padding: 18px 18px 16px;
-}
-
-.welcome .title {
-  font-size: 14px;
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
-}
-
-.welcome .copy {
-  color: var(--text);
-  font-size: 14px;
-  line-height: 1.7;
-  margin: 0;
-}
-
-.messages {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 860px;
-  margin: 0 auto;
-}
-
-.message {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.message.user {
-  justify-content: flex-end;
-}
-
-.message .bubble {
-  max-width: min(720px, 88%);
-  border-radius: 20px;
-  padding: 14px 16px;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.18);
-  white-space: pre-wrap;
-  word-break: break-word;
-  line-height: 1.65;
-}
-
-.message.assistant .bubble {
-  background: var(--bubble-assistant);
-}
-
-.message.user .bubble {
-  background: var(--bubble-user);
-  border-color: rgba(103,183,255,0.18);
-}
-
-.message .label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.11em;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.message.user .label { color: rgba(173, 213, 255, 0.85); }
-.message.assistant .label { color: rgba(157, 255, 224, 0.82); }
-
-.typing {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  min-height: 18px;
-}
-
-.typing span {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--muted);
-  opacity: 0.6;
-  animation: bounce 1.2s infinite ease-in-out;
-}
-
-.typing span:nth-child(2) { animation-delay: 0.15s; }
-.typing span:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes bounce {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
-  40% { transform: translateY(-5px); opacity: 1; }
-}
-
-.composer {
-  padding: 16px;
-  border-top: 1px solid var(--line);
-  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.03));
-}
-
-.composer-inner {
-  max-width: 860px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: end;
-}
-
-.input-wrap {
-  background: var(--panel-2);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 18px;
-  padding: 12px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-textarea {
-  width: 100%;
-  min-height: 56px;
-  max-height: 180px;
-  resize: none;
-  border: 0;
-  outline: none;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 15px;
-  line-height: 1.5;
-  padding: 0;
-}
-
-textarea::placeholder {
-  color: #7f8db0;
-}
-
-.hint-row {
-  max-width: 860px;
-  margin: 10px auto 0;
-  color: var(--muted);
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.kbd {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-  font-size: 11px;
-  padding: 3px 7px;
-  border-radius: 7px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-}
-
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.62);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 18px;
-  z-index: 40;
-}
-
-.modal-backdrop.show { display: flex; }
-
-.modal {
-  width: min(760px, 100%);
-  border-radius: 24px;
-  background: rgba(11, 17, 31, 0.96);
-  border: 1px solid rgba(103,183,255,0.15);
-  box-shadow: 0 32px 120px rgba(0,0,0,0.56);
-  backdrop-filter: blur(20px);
-  overflow: hidden;
-}
-
-.modal-header {
-  padding: 18px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.modal-header h3 { margin: 0; font-size: 18px; }
-.modal-body { padding: 18px 20px 20px; display: grid; gap: 16px; }
-
-.field {
-  display: grid;
-  gap: 7px;
-}
-
-.field label {
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.04);
-  color: var(--text);
-  padding: 12px 14px;
-  font: inherit;
-  outline: none;
-}
-
-.field textarea { min-height: 120px; resize: vertical; }
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-
-.toast {
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 60;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: rgba(13, 20, 36, 0.96);
-  border: 1px solid rgba(103,183,255,0.16);
-  color: var(--text);
-  box-shadow: var(--shadow);
-  max-width: 380px;
-  display: none;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.toast.show { display: block; }
-
-.empty-state {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-  border: 1px dashed rgba(255,255,255,0.12);
-  border-radius: 16px;
-  padding: 16px;
-  margin-top: 10px;
-}
-
-.small {
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-@media (max-width: 980px) {
-  body { overflow: auto; }
-  .app {
-    grid-template-columns: 1fr;
-    height: auto;
-    min-height: 100vh;
-  }
-  .sidebar { order: 2; }
-  .main { order: 1; min-height: 76vh; }
-}
-
-@media (max-width: 640px) {
-  .app { padding: 10px; gap: 10px; }
-  .topbar, .brand, .composer, .chat { padding-left: 14px; padding-right: 14px; }
-  .grid-2 { grid-template-columns: 1fr; }
-  .composer-inner { grid-template-columns: 1fr; }
-  .topbar { flex-direction: column; align-items: stretch; }
-  .topbar-actions { justify-content: stretch; }
-  .topbar-actions .btn { flex: 1; }
-  .message .bubble { max-width: 92%; }
-}
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jr.</title>
+<style>
+
+body{
+    background:#111;
+    color:#eee;
+    font-family:Consolas,monospace;
+    max-width:800px;
+    margin:auto;
+    padding:24px;
+}
+
+#chat{
+    background:#1c1c1c;
+    border-radius:8px;
+    padding:14px;
+    min-height:360px;
+    max-height:60vh;
+    overflow-y:auto;
+    white-space:pre-wrap;
+    line-height:1.5;
+}
+
+.user{ color:#7ec8ff; }
+.jr{ color:#8fe38f; }
+
+#input-row{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+}
+
+textarea{
+    flex:1;
+    background:#1c1c1c;
+    color:#eee;
+    border:none;
+    border-radius:6px;
+    padding:10px;
+    font-family:inherit;
+    font-size:15px;
+    resize:none;
+    height:44px;
+}
+
+button{
+    padding:0 16px;
+    border:none;
+    border-radius:6px;
+    background:#333;
+    color:#eee;
+    cursor:pointer;
+}
+
+button:hover{ background:#444; }
+
+#top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+}
+
+#top-row button{ font-size:12px; padding:6px 10px; }
+
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-top">
-          <div class="avatar" aria-hidden="true"></div>
-          <div>
-            <h1>Jr.</h1>
-            <p>Chatbot prototipo con memoria local y estilo de asistente en español.</p>
-          </div>
-        </div>
-        <div class="status-row"><span class="dot"></span><span id="statusText">Listo</span></div>
-      </div><div class="sidebar-section">
-    <div class="section-title"><span>Memoria activa</span><span id="memoryCount">0</span></div>
-    <ul class="memory-list" id="memoryList">
-      <li class="memory-item">
-        <div class="k">Nada aún</div>
-        <div class="v">Cuando digas “me llamo…” o “soy…”, Jr. guardará el nombre y empezará a recordarlo en futuros mensajes.</div>
-      </li>
-    </ul>
-  </div>
 
-  <div class="sidebar-section">
-    <div class="section-title"><span>Atajos</span><span>local</span></div>
-    <div class="chip-list">
-      <button class="chip" data-chip="Hola Jr., me llamo Moon.">Presentarme</button>
-      <button class="chip" data-chip="Mi nombre es Moon.">Guardar nombre</button>
-      <button class="chip" data-chip="¿Qué recuerdas de mí?">Preguntar memoria</button>
-      <button class="chip" data-chip="¿Cuánta batería tienes?">Batería</button>
-      <button class="chip" data-chip="¿Qué hora es?">Hora</button>
-    </div>
-  </div>
-
-  <div class="sidebar-section" style="padding-bottom: 12px;">
-    <div class="section-title"><span>Conversación</span><span id="chatCount">0</span></div>
-    <ul class="chat-list" id="chatList">
-      <li class="chat-item">
-        <div class="v">Aún no hay mensajes. Escribe algo para empezar.</div>
-      </li>
-    </ul>
-  </div>
-
-  <div class="sidebar-bottom">
-    <button class="btn primary" id="openSettingsBtn">Configuración</button>
-    <button class="btn" id="exportBtn">Exportar memoria</button>
-    <button class="btn danger" id="clearAllBtn">Borrar todo</button>
-  </div>
-</aside>
-
-<main class="main">
-  <header class="topbar">
-    <div class="left">
-      <h2>Jr. Chat</h2>
-      <div class="sub" id="subText">Prueba local con Groq, memoria persistente y respuestas en español.</div>
-    </div>
-    <div class="topbar-actions">
-      <button class="btn" id="rememberBtn">Recordar ahora</button>
-      <button class="btn primary" id="openSettingsBtn2">Ajustes</button>
-    </div>
-  </header>
-
-  <section class="chat-wrap">
-    <div class="chat" id="chatScroll">
-      <div class="welcome">
-        <div class="title">Bienvenido</div>
-        <p class="copy">
-          Esto es un prototipo de Jr. Guarda datos importantes en el navegador, usa Groq para generar respuestas y mantiene el contexto entre mensajes.
-          Puedes presentarte diciendo <strong>“me llamo…”</strong> o <strong>“soy…”</strong>.
-        </p>
-      </div>
-      <div class="messages" id="messages"></div>
-    </div>
-  </section>
-
-  <footer class="composer">
-    <div class="composer-inner">
-      <div class="input-wrap">
-        <textarea id="promptInput" placeholder="Escribe aquí..."></textarea>
-      </div>
-      <button class="btn primary" id="sendBtn" style="min-width: 132px; height: 54px;">Enviar</button>
-    </div>
-    <div class="hint-row">
-      <div>Enter para enviar · <span class="kbd">Shift</span> + <span class="kbd">Enter</span> para salto de línea</div>
-      <div id="modelHint">Modelo: llama-3.3-70b-versatile</div>
-    </div>
-  </footer>
-</main>
-
-  </div>  <div class="modal-backdrop" id="settingsModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>Configuración de Jr.</h3>
-        <button class="btn" id="closeSettingsBtn" style="padding: 10px 12px;">Cerrar</button>
-      </div>
-      <div class="modal-body">
-        <div class="grid-2">
-          <div class="field">
-            <label for="apiKeyInput">Groq API key</label>
-            <input id="apiKeyInput" type="password" placeholder="Pega tu llave aquí" autocomplete="off" />
-          </div>
-          <div class="field">
-            <label for="modelSelect">Modelo</label>
-            <select id="modelSelect">
-              <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
-              <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
-              <option value="llama-3.3-8b-instant">llama-3.3-8b-instant</option>
-            </select>
-          </div>
-        </div><div class="field">
-      <label for="personaInput">Personalidad de Jr.</label>
-      <textarea id="personaInput" placeholder="Describe cómo debe hablar Jr. en español..."></textarea>
-    </div>
-
-    <div class="grid-2">
-      <div class="field">
-        <label for="memoryPolicyInput">Reglas de memoria</label>
-        <textarea id="memoryPolicyInput" placeholder="Qué cosas debe guardar Jr. como memoria útil..."></textarea>
-      </div>
-      <div class="field">
-        <label for="systemPromptInput">Instrucciones del sistema</label>
-        <textarea id="systemPromptInput" placeholder="Instrucciones principales del asistente..."></textarea>
-      </div>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn" id="testKeyBtn">Probar llave</button>
-      <button class="btn" id="resetSettingsBtn">Restaurar ejemplo</button>
-      <button class="btn primary" id="saveSettingsBtn">Guardar</button>
-    </div>
-    <div class="small">La llave se guarda localmente en este navegador usando <code>localStorage</code>. No la subas a GitHub.</div>
-  </div>
+<div id="top-row">
+    <h2 style="margin:0;">Jr.</h2>
+    <button onclick="changeKey()">Cambiar llave</button>
 </div>
 
-  </div>  <div class="toast" id="toast"></div>  <script>
-    const STORAGE = {
-      apiKey: 'jr.groqKey',
-      messages: 'jr.messages',
-      memory: 'jr.memory',
-      settings: 'jr.settings',
-      currentUser: 'jr.currentUser',
-      chatDraft: 'jr.draft'
-    };
+<div id="chat"></div>
 
-    const DEFAULTS = {
-      model: 'llama-3.3-70b-versatile',
-      persona: 'Eres Jr., un asistente de escritorio amable, curioso y con humor seco ocasional. Siempre hablas en español, con respuestas claras y naturales. No inventes recuerdos; usa solo los datos guardados localmente. Si el usuario pide algo que no sabes, dilo con honestidad.',
-      memoryPolicy: 'Guarda solo datos útiles y duraderos: nombre, apodo, gustos, preferencias, proyectos, idioma preferido y hechos importantes. No guardes frases triviales, ruido de conversación o detalles efímeros. Cuando el usuario diga "me llamo...", "mi nombre es...", "soy..." o "llámame...", actualiza el usuario activo.',
-      systemPrompt: 'Responde siempre en español. Mantén el tono cálido, breve y personal. Si el usuario ya está identificado, úsalo por nombre. Prioriza la memoria local antes de responder. Si hace falta, haz una sola pregunta de seguimiento.'
-    };
+<div id="input-row">
+    <textarea id="prompt" placeholder="Escribe un mensaje..."></textarea>
+    <button onclick="send()">Enviar</button>
+</div>
 
-    const state = {
-      apiKey: localStorage.getItem(STORAGE.apiKey) || '',
-      messages: loadJSON(STORAGE.messages, []),
-      memory: loadJSON(STORAGE.memory, {
-        currentUser: localStorage.getItem(STORAGE.currentUser) || 'Invitado',
-        users: {}
-      }),
-      settings: loadJSON(STORAGE.settings, DEFAULTS),
-      typingId: null,
-      busy: false
-    };
+<script>
 
-    const el = {
-      chatScroll: document.getElementById('chatScroll'),
-      messages: document.getElementById('messages'),
-      promptInput: document.getElementById('promptInput'),
-      sendBtn: document.getElementById('sendBtn'),
-      rememberBtn: document.getElementById('rememberBtn'),
-      openSettingsBtn: document.getElementById('openSettingsBtn'),
-      openSettingsBtn2: document.getElementById('openSettingsBtn2'),
-      closeSettingsBtn: document.getElementById('closeSettingsBtn'),
-      saveSettingsBtn: document.getElementById('saveSettingsBtn'),
-      resetSettingsBtn: document.getElementById('resetSettingsBtn'),
-      testKeyBtn: document.getElementById('testKeyBtn'),
-      clearAllBtn: document.getElementById('clearAllBtn'),
-      exportBtn: document.getElementById('exportBtn'),
-      apiKeyInput: document.getElementById('apiKeyInput'),
-      modelSelect: document.getElementById('modelSelect'),
-      personaInput: document.getElementById('personaInput'),
-      memoryPolicyInput: document.getElementById('memoryPolicyInput'),
-      systemPromptInput: document.getElementById('systemPromptInput'),
-      settingsModal: document.getElementById('settingsModal'),
-      toast: document.getElementById('toast'),
-      memoryList: document.getElementById('memoryList'),
-      memoryCount: document.getElementById('memoryCount'),
-      chatList: document.getElementById('chatList'),
-      chatCount: document.getElementById('chatCount'),
-      statusText: document.getElementById('statusText'),
-      subText: document.getElementById('subText'),
-      modelHint: document.getElementById('modelHint')
-    };
+const endpoint = "https://api.groq.com/openai/v1/chat/completions";
+const chat = document.getElementById("chat");
+const promptBox = document.getElementById("prompt");
 
-    const MEMORY_LIMIT_PER_USER = 24;
+let apiKey = localStorage.getItem("jr_key");
+let history = JSON.parse(localStorage.getItem("jr_history") || "[]");
+let memory = JSON.parse(localStorage.getItem("jr_memory") || '{"facts":{},"likes":[]}');
 
-    init();
+if(!apiKey){
+    apiKey = prompt("Ingresa tu Groq API Key:");
+    if(apiKey) localStorage.setItem("jr_key", apiKey);
+}
 
-    function init() {
-      hydrateSettingsUI();
-      renderAll();
-      bindEvents();
+function changeKey(){
+    const key = prompt("Nueva Groq API Key:");
+    if(key){
+        apiKey = key;
+        localStorage.setItem("jr_key", key);
+    }
+}
 
-      if (state.messages.length === 0) {
-        addAssistantMessage('Hola. Soy Jr. Dime tu nombre o pregúntame algo para empezar.');
-      }
+function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
-      const savedDraft = localStorage.getItem(STORAGE.chatDraft);
-      if (savedDraft) el.promptInput.value = savedDraft;
+// --- memory extraction (rule-based, no extra API calls) ---
+function extractMemory(text){
+    const factPatterns = [
+        { re:/\b(?:soy|me llamo|mi nombre es)\s+([a-záéíóúñ]{2,20})/i, key:"nombre" },
+        { re:/\b(?:my name is|i'?m|i am)\s+([a-z]{2,20})\b/i, key:"nombre" },
+        { re:/\btengo\s+(\d{1,3})\s*años/i, key:"edad" },
+        { re:/\bvivo en\s+([a-záéíóúñ\s]{2,30}?)(?:[.,!]|$)/i, key:"ubicación" },
+        { re:/\btrabajo (?:en|como)\s+([a-záéíóúñ\s]{2,40}?)(?:[.,!]|$)/i, key:"trabajo" }
+    ];
+    const likePatterns = [
+        /\bme gusta\s+(.+?)(?:[.,!]|$)/i,
+        /\bi like\s+(.+?)(?:[.,!]|$)/i
+    ];
 
-      if (!state.apiKey) {
-        openSettings('Primero pega tu llave de Groq para poder hacer pruebas.');
-      }
+    let changed = false;
+
+    for(const p of factPatterns){
+        const m = text.match(p.re);
+        if(m){
+            const val = capitalize(m[1].trim());
+            if(memory.facts[p.key] !== val){
+                memory.facts[p.key] = val;
+                changed = true;
+            }
+        }
+    }
+    for(const re of likePatterns){
+        const m = text.match(re);
+        if(m){
+            const val = m[1].trim();
+            if(val.length < 60 && !memory.likes.includes(val)){
+                memory.likes.push(val);
+                changed = true;
+            }
+        }
     }
 
-    function bindEvents() {
-      el.sendBtn.addEventListener('click', sendMessage);
-      el.promptInput.addEventListener('keydown', onComposerKeyDown);
-      el.promptInput.addEventListener('input', onDraftChange);
+    if(changed) localStorage.setItem("jr_memory", JSON.stringify(memory));
+}
 
-      el.openSettingsBtn.addEventListener('click', () => openSettings());
-      el.openSettingsBtn2.addEventListener('click', () => openSettings());
-      el.closeSettingsBtn.addEventListener('click', closeSettings);
-      el.saveSettingsBtn.addEventListener('click', saveSettings);
-      el.resetSettingsBtn.addEventListener('click', resetSettings);
-      el.testKeyBtn.addEventListener('click', testKey);
-      el.clearAllBtn.addEventListener('click', clearAll);
-      el.exportBtn.addEventListener('click', exportMemory);
-      el.rememberBtn.addEventListener('click', rememberNow);
+function memoryBlock(){
+    const lines = [];
+    for(const [k,v] of Object.entries(memory.facts)) lines.push(`${k}: ${v}`);
+    if(memory.likes.length) lines.push(`le gusta: ${memory.likes.join(", ")}`);
+    return lines.length ? "Datos conocidos del usuario:\n" + lines.join("\n") : "";
+}
 
-      el.settingsModal.addEventListener('click', (e) => {
-        if (e.target === el.settingsModal) closeSettings();
-      });
+function addMessage(type, text){
+    chat.innerHTML += `<div class="${type}"><b>${type=="user"?"Tú":"Jr"}:</b> ${text}</div><br>`;
+    chat.scrollTop = chat.scrollHeight;
+}
 
-      document.querySelectorAll('[data-chip]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          el.promptInput.value = btn.dataset.chip;
-          el.promptInput.focus();
-          autoGrow(el.promptInput);
-          saveDraft();
+function renderHistory(){
+    chat.innerHTML = "";
+    for(const m of history){
+        addMessage(m.role === "user" ? "user" : "jr", m.content);
+    }
+}
+renderHistory();
+
+async function send(){
+    const text = promptBox.value.trim();
+    if(text == "") return;
+
+    addMessage("user", text);
+    history.push({ role:"user", content:text });
+    localStorage.setItem("jr_history", JSON.stringify(history));
+
+    extractMemory(text);
+
+    promptBox.value = "";
+    addMessage("jr", "Pensando...");
+
+    const mem = memoryBlock();
+    const systemContent = `Eres Jr.
+Siempre hablas en español.
+Respondes de forma breve.
+Eres amigable.
+Tienes un humor seco ocasional.
+Nunca dices que eres ChatGPT.
+Tu nombre siempre es Jr.` + (mem ? "\n\n" + mem : "");
+
+    const messages = [{ role:"system", content:systemContent }, ...history.slice(-14)];
+
+    try{
+        const response = await fetch(endpoint, {
+            method:"POST",
+            headers:{
+                "Authorization":"Bearer " + apiKey,
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                model:"llama-3.3-70b-versatile",
+                messages:messages
+            })
         });
-      });
 
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && el.settingsModal.classList.contains('show')) closeSettings();
-      });
+        const data = await response.json();
+
+        document.querySelectorAll(".jr")[document.querySelectorAll(".jr").length-1].remove();
+
+        if(data.error){
+            addMessage("jr", data.error.message);
+            return;
+        }
+
+        const reply = data.choices[0].message.content;
+        addMessage("jr", reply);
+        history.push({ role:"assistant", content:reply });
+        localStorage.setItem("jr_history", JSON.stringify(history));
+
+    }catch(err){
+        document.querySelectorAll(".jr")[document.querySelectorAll(".jr").length-1].remove();
+        addMessage("jr", err.message);
     }
+}
 
-    function onComposerKeyDown(e) {
-      if (e.key === 'Enter' && !e.shiftKey) {
+promptBox.addEventListener("keydown", (e) => {
+    if(e.key === "Enter" && !e.shiftKey){
         e.preventDefault();
-        sendMessage();
-      }
+        send();
     }
+});
 
-    function onDraftChange() {
-      autoGrow(el.promptInput);
-      saveDraft();
-    }
-
-    function autoGrow(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = Math.min(textarea.scrollHeight, 180) + 'px';
-    }
-
-    function loadJSON(key, fallback) {
-      try {
-        const raw = localStorage.getItem(key);
-        return raw ? JSON.parse(raw) : fallback;
-      } catch {
-        return fallback;
-      }
-    }
-
-    function saveJSON(key, value) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
-
-    function saveDraft() {
-      localStorage.setItem(STORAGE.chatDraft, el.promptInput.value);
-    }
-
-    function hydrateSettingsUI() {
-      el.apiKeyInput.value = state.apiKey;
-      el.modelSelect.value = state.settings.model || DEFAULTS.model;
-      el.personaInput.value = state.settings.persona || DEFAULTS.persona;
-      el.memoryPolicyInput.value = state.settings.memoryPolicy || DEFAULTS.memoryPolicy;
-      el.systemPromptInput.value = state.settings.systemPrompt || DEFAULTS.systemPrompt;
-      updateModelHint();
-    }
-
-    function renderAll() {
-      renderMessages();
-      renderMemory();
-      renderChatList();
-      updateStatus();
-    }
-
-    function updateStatus(text) {
-      if (text) el.statusText.textContent = text;
-      else el.statusText.textContent = state.apiKey ? 'En línea' : 'Sin llave';
-      el.subText.textContent = state.memory.currentUser && state.memory.currentUser !== 'Invitado'
-        ? `Hablando con ${state.memory.currentUser}. La memoria está activa y se guardará en este navegador.`
-        : 'Prueba local con Groq, memoria persistente y respuestas en español.';
-    }
-
-    function updateModelHint() {
-      el.modelHint.textContent = `Modelo: ${state.settings.model || DEFAULTS.model}`;
-    }
-
-    function addMessage(role, content, extra = {}) {
-      const msg = {
-        id: cryptoId(),
-        role,
-        content,
-        ts: new Date().toISOString(),
-        ...extra
-      };
-      state.messages.push(msg);
-      if (state.messages.length > 200) state.messages.splice(0, state.messages.length - 200);
-      saveJSON(STORAGE.messages, state.messages);
-      renderMessages();
-      renderChatList();
-      scrollToBottom();
-      return msg;
-    }
-
-    function addUserMessage(content) { return addMessage('user', content); }
-    function addAssistantMessage(content, extra = {}) { return addMessage('assistant', content, extra); }
-
-    function renderMessages() {
-      el.messages.innerHTML = '';
-      if (state.messages.length === 0) return;
-
-      for (const msg of state.messages) {
-        const wrap = document.createElement('div');
-        wrap.className = `message ${msg.role}`;
-
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        bubble.innerHTML = `
-          <div class="label">${msg.role === 'user' ? 'Tú' : 'Jr.'}</div>
-          <div class="content">${renderRichText(msg.content)}</div>
-        `;
-
-        wrap.appendChild(bubble);
-        el.messages.appendChild(wrap);
-      }
-    }
-
-    function renderMemory() {
-      const items = getCurrentUserMemories();
-      el.memoryList.innerHTML = '';
-      el.memoryCount.textContent = String(items.length);
-
-      if (!items.length) {
-        el.memoryList.innerHTML = `
-          <li class="memory-item">
-            <div class="k">Sin memoria</div>
-            <div class="v">Dile a Jr. algo como “me llamo Moon” para guardar tu identidad y empezar a crear contexto.</div>
-          </li>`;
-        return;
-      }
-
-      for (const item of items.slice().reverse()) {
-        const li = document.createElement('li');
-        li.className = 'memory-item';
-        li.innerHTML = `
-          <div class="k">${escapeHTML(item.key)}</div>
-          <div class="v">${escapeHTML(Array.isArray(item.value) ? item.value.join(', ') : String(item.value))}</div>
-          <div class="meta">${escapeHTML(item.note || 'guardado localmente')}</div>
-        `;
-        el.memoryList.appendChild(li);
-      }
-    }
-
-    function renderChatList() {
-      const recent = state.messages.slice(-6).reverse();
-      el.chatCount.textContent = String(state.messages.length);
-      el.chatList.innerHTML = '';
-
-      if (!recent.length) {
-        el.chatList.innerHTML = '<li class="chat-item"><div class="v">Aún no hay mensajes.</div></li>';
-        return;
-      }
-
-      recent.forEach(msg => {
-        const li = document.createElement('li');
-        li.className = 'chat-item';
-        li.innerHTML = `<div class="v"><strong>${msg.role === 'user' ? 'Tú' : 'Jr.'}:</strong> ${escapeHTML(truncate(msg.content, 120))}</div>`;
-        el.chatList.appendChild(li);
-      });
-    }
-
-    function getCurrentUserMemories() {
-      const currentUser = state.memory.currentUser || 'Invitado';
-      const userMem = state.memory.users?.[currentUser] || { facts: [], aliases: [], notes: [] };
-      const items = [];
-
-      if (currentUser && currentUser !== 'Invitado') {
-        items.push({ key: 'Usuario activo', value: currentUser, note: 'identidad actual' });
-      }
-
-      for (const fact of userMem.facts || []) items.push({ key: 'Hecho', value: fact.value, note: fact.source || 'memoria' });
-      for (const alias of userMem.aliases || []) items.push({ key: 'Apodo', value: alias, note: 'alias guardado' });
-      for (const note of userMem.notes || []) items.push({ key: 'Nota', value: note, note: 'nota guardada' });
-      return items;
-    }
-
-    function extractMemory(text) {
-      const clean = normalizeText(text);
-      const detected = [];
-      const user = ensureCurrentUser();
-      const current = state.memory.users[user] || makeUserRecord();
-
-      const patterns = [
-        { type: 'name', regex: /(?:mi\s+nombre\s+es|me\s+llamo|soy|llámame|llamame)\s+([A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9_\- ]{2,40})/i },
-        { type: 'like', regex: /(?:me\s+gusta|me\s+gustan|me\s+encanta|amo)\s+(.{2,80})/i },
-        { type: 'prefer', regex: /(?:prefiero|prefiero\s+que\s+me\s+llames|me\s+dicen)\s+(.{2,80})/i },
-        { type: 'project', regex: /(?:estoy\s+haciendo|estoy\s+trabajando\s+en|mi\s+proyecto\s+es)\s+(.{2,100})/i },
-        { type: 'fact', regex: /(?:recuerda\s+que|acuérdate\s+que|ten\s+presente\s+que)\s+(.{2,120})/i }
-      ];
-
-      for (const rule of patterns) {
-        const m = clean.match(rule.regex);
-        if (!m) continue;
-        let value = tidyValue(m[1]);
-        if (!value) continue;
-
-        if (rule.type === 'name') {
-          setCurrentUser(value);
-          detected.push({ key: 'Nombre', value, note: 'usuario activo detectado' });
-        } else if (rule.type === 'prefer') {
-          current.aliases = current.aliases || [];
-          if (!current.aliases.includes(value)) current.aliases.push(value);
-          detected.push({ key: 'Preferencia', value, note: 'preferencia detectada' });
-        } else if (rule.type === 'like') {
-          pushUniqueFact(current, `Le gusta ${value}`);
-          detected.push({ key: 'Gusto', value, note: 'gusto detectado' });
-        } else if (rule.type === 'project') {
-          pushUniqueFact(current, `Proyecto: ${value}`);
-          detected.push({ key: 'Proyecto', value, note: 'proyecto guardado' });
-        } else if (rule.type === 'fact') {
-          pushUniqueFact(current, value);
-          detected.push({ key: 'Dato importante', value, note: 'marcado por el usuario' });
-        }
-      }
-
-      if (detected.length) {
-        state.memory.users[user] = current;
-        saveJSON(STORAGE.memory, state.memory);
-        localStorage.setItem(STORAGE.currentUser, state.memory.currentUser);
-        renderMemory();
-      }
-
-      return detected;
-    }
-
-    function pushUniqueFact(userRecord, value) {
-      userRecord.facts = userRecord.facts || [];
-      const exists = userRecord.facts.some(f => normalizeText(f.value) === normalizeText(value));
-      if (!exists) {
-        userRecord.facts.push({ value, source: 'detectado en conversación', time: new Date().toISOString() });
-      }
-      if (userRecord.facts.length > MEMORY_LIMIT_PER_USER) {
-        userRecord.facts = userRecord.facts.slice(-MEMORY_LIMIT_PER_USER);
-      }
-    }
-
-    function ensureCurrentUser() {
-      if (!state.memory.currentUser) state.memory.currentUser = 'Invitado';
-      if (!state.memory.users[state.memory.currentUser]) state.memory.users[state.memory.currentUser] = makeUserRecord();
-      return state.memory.currentUser;
-    }
-
-    function makeUserRecord() {
-      return { facts: [], aliases: [], notes: [] };
-    }
-
-    function setCurrentUser(name) {
-      const cleaned = tidyValue(name);
-      if (!cleaned) return;
-      state.memory.currentUser = cleaned;
-      state.memory.users[cleaned] = state.memory.users[cleaned] || makeUserRecord();
-      saveJSON(STORAGE.memory, state.memory);
-      localStorage.setItem(STORAGE.currentUser, cleaned);
-      showToast(`Usuario activo cambiado a “${cleaned}”.`);
-      updateStatus();
-      renderMemory();
-    }
-
-    function buildContext(userPrompt) {
-      const currentUser = ensureCurrentUser();
-      const userRecord = state.memory.users[currentUser] || makeUserRecord();
-      const recent = state.messages.slice(-10)
-        .map(m => `${m.role === 'user' ? 'Usuario' : 'Jr'}: ${stripMarkdown(m.content)}`)
-        .join('\n');
-
-      const memoryFacts = (userRecord.facts || []).slice(-10).map(f => `• ${f.value}`);
-      const aliases = (userRecord.aliases || []).slice(-5).map(a => `• ${a}`);
-
-      const customPersona = state.settings.persona || DEFAULTS.persona;
-      const customMemory = state.settings.memoryPolicy || DEFAULTS.memoryPolicy;
-      const customSystem = state.settings.systemPrompt || DEFAULTS.systemPrompt;
-
-      return [
-        `Sistema:\n${customSystem}`,
-        `\nPersona:\n${customPersona}`,
-        `\nPolítica de memoria:\n${customMemory}`,
-        `\nUsuario activo: ${currentUser}`,
-        memoryFacts.length ? `\nMemorias conocidas:\n${memoryFacts.join('\n')}` : '\nMemorias conocidas:\n• Ninguna aún.',
-        aliases.length ? `\nAlias / apodos:\n${aliases.join('\n')}` : '',
-        recent ? `\nConversación reciente:\n${recent}` : '',
-        `\nMensaje actual del usuario:\n${userPrompt}`
-      ].filter(Boolean).join('\n');
-    }
-
-    function buildMessagesForGroq(userPrompt) {
-      const currentUser = ensureCurrentUser();
-      const userRecord = state.memory.users[currentUser] || makeUserRecord();
-      const memorySummary = summarizeMemory(userRecord);
-      const recent = state.messages.slice(-8).map(m => ({
-        role: m.role,
-        content: stripMarkdown(m.content)
-      }));
-
-      return [
-        {
-          role: 'system',
-          content: [
-            state.settings.systemPrompt || DEFAULTS.systemPrompt,
-            '',
-            state.settings.persona || DEFAULTS.persona,
-            '',
-            `Usuario activo: ${currentUser}`,
-            memorySummary ? `Memoria breve:\n${memorySummary}` : 'Memoria breve: ninguna todavía.',
-            '',
-            'Regla importante: responde siempre en español. Si el usuario te da una identidad, úsala. Si no hay datos suficientes, haz una sola pregunta clara.'
-          ].join('\n')
-        },
-        ...recent,
-        { role: 'user', content: userPrompt }
-      ];
-    }
-
-    function summarizeMemory(userRecord) {
-      const lines = [];
-      for (const fact of (userRecord.facts || []).slice(-8)) lines.push(`• ${fact.value}`);
-      for (const alias of (userRecord.aliases || []).slice(-4)) lines.push(`• alias: ${alias}`);
-      return lines.join('\n');
-    }
-
-    async function sendMessage() {
-      if (state.busy) return;
-
-      const text = el.promptInput.value.trim();
-      if (!text) return;
-      if (!state.apiKey) {
-        showToast('Primero configura tu llave de Groq.');
-        openSettings();
-        return;
-      }
-
-      el.promptInput.value = '';
-      autoGrow(el.promptInput);
-      saveDraft();
-
-      addUserMessage(text);
-      extractMemory(text);
-      updateStatus('Pensando...');
-      state.busy = true;
-      setComposerEnabled(false);
-
-      const typingMsg = addTypingIndicator();
-
-      try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${state.apiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: state.settings.model || DEFAULTS.model,
-            messages: buildMessagesForGroq(text),
-            temperature: 0.7,
-            top_p: 0.9,
-            stream: false
-          })
-        });
-
-        const data = await response.json();
-        removeTypingIndicator(typingMsg);
-
-        if (!response.ok) {
-          const msg = data?.error?.message || `Error HTTP ${response.status}`;
-          addAssistantMessage(`Error: ${msg}`);
-          showToast('La solicitud falló. Revisa la llave o el modelo.');
-          return;
-        }
-
-        const answer = data?.choices?.[0]?.message?.content?.trim() || 'No obtuve una respuesta válida.';
-        addAssistantMessage(answer);
-
-        maybeRememberFromAssistant(answer);
-        renderMemory();
-        updateStatus('En línea');
-      } catch (err) {
-        removeTypingIndicator(typingMsg);
-        addAssistantMessage(`Error: ${err.message}`);
-        showToast('No se pudo conectar con Groq o el navegador bloqueó la petición.');
-        updateStatus('Sin conexión');
-      } finally {
-        state.busy = false;
-        setComposerEnabled(true);
-        el.promptInput.focus();
-      }
-    }
-
-    function addTypingIndicator() {
-      const msg = {
-        id: cryptoId(),
-        role: 'assistant',
-        content: '__typing__',
-        typing: true
-      };
-      state.messages.push(msg);
-      saveJSON(STORAGE.messages, state.messages);
-      renderMessages();
-      scrollToBottom();
-      return msg.id;
-    }
-
-    function removeTypingIndicator(id) {
-      state.messages = state.messages.filter(m => m.id !== id && !m.typing);
-      saveJSON(STORAGE.messages, state.messages);
-      renderMessages();
-      renderChatList();
-      scrollToBottom();
-    }
-
-    function maybeRememberFromAssistant(answer) {
-      const lower = normalizeText(answer);
-      if (/(te\s+llamas\s+|tu\s+nombre\s+es|llamaré\s+|te\s+voy\s+a\s+llamar)/i.test(lower)) {
-        // intentionally conservative; assistant memory inference left simple
-      }
-    }
-
-    function rememberNow() {
-      const text = el.promptInput.value.trim();
-      if (!text) {
-        showToast('Escribe algo primero para que Jr. lo evalúe como memoria.');
-        return;
-      }
-      const found = extractMemory(text);
-      if (found.length) showToast(`Memoria detectada: ${found.map(f => f.key).join(', ')}.`);
-      else showToast('No encontré una memoria clara en ese texto.');
-    }
-
-    function setComposerEnabled(enabled) {
-      el.sendBtn.disabled = !enabled;
-      el.promptInput.disabled = !enabled;
-      el.rememberBtn.disabled = !enabled;
-      el.openSettingsBtn.disabled = !enabled;
-      el.openSettingsBtn2.disabled = !enabled;
-    }
-
-    function openSettings(message) {
-      if (message) showToast(message);
-      hydrateSettingsUI();
-      el.settingsModal.classList.add('show');
-      setTimeout(() => el.apiKeyInput.focus(), 50);
-    }
-
-    function closeSettings() {
-      el.settingsModal.classList.remove('show');
-    }
-
-    function saveSettings() {
-      state.apiKey = el.apiKeyInput.value.trim();
-      state.settings = {
-        model: el.modelSelect.value,
-        persona: el.personaInput.value.trim() || DEFAULTS.persona,
-        memoryPolicy: el.memoryPolicyInput.value.trim() || DEFAULTS.memoryPolicy,
-        systemPrompt: el.systemPromptInput.value.trim() || DEFAULTS.systemPrompt
-      };
-      localStorage.setItem(STORAGE.apiKey, state.apiKey);
-      saveJSON(STORAGE.settings, state.settings);
-      updateModelHint();
-      updateStatus();
-      closeSettings();
-      showToast('Configuración guardada.');
-    }
-
-    function resetSettings() {
-      el.modelSelect.value = DEFAULTS.model;
-      el.personaInput.value = DEFAULTS.persona;
-      el.memoryPolicyInput.value = DEFAULTS.memoryPolicy;
-      el.systemPromptInput.value = DEFAULTS.systemPrompt;
-      showToast('Ajustes de ejemplo restaurados.');
-    }
-
-    async function testKey() {
-      const key = el.apiKeyInput.value.trim();
-      if (!key) {
-        showToast('Pega una llave primero.');
-        return;
-      }
-      showToast('Probando llave...');
-      try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${key}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: el.modelSelect.value || DEFAULTS.model,
-            messages: [
-              { role: 'system', content: 'Responde solo con una frase breve en español.' },
-              { role: 'user', content: 'Di solo: ok' }
-            ],
-            temperature: 0.2
-          })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data?.error?.message || `Error HTTP ${response.status}`);
-        showToast('Llave válida.');
-      } catch (err) {
-        showToast(`Falló la prueba: ${err.message}`);
-      }
-    }
-
-    function clearAll() {
-      if (!confirm('¿Borrar memoria, chat y configuración local?')) return;
-      localStorage.removeItem(STORAGE.apiKey);
-      localStorage.removeItem(STORAGE.messages);
-      localStorage.removeItem(STORAGE.memory);
-      localStorage.removeItem(STORAGE.settings);
-      localStorage.removeItem(STORAGE.currentUser);
-      localStorage.removeItem(STORAGE.chatDraft);
-      location.reload();
-    }
-
-    function exportMemory() {
-      const payload = {
-        currentUser: state.memory.currentUser,
-        users: state.memory.users,
-        messages: state.messages,
-        settings: state.settings
-      };
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'jr-memory-export.json';
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Memoria exportada.');
-    }
-
-    function showToast(message) {
-      el.toast.textContent = message;
-      el.toast.classList.add('show');
-      clearTimeout(showToast._t);
-      showToast._t = setTimeout(() => el.toast.classList.remove('show'), 2400);
-    }
-
-    function scrollToBottom() {
-      requestAnimationFrame(() => {
-        el.chatScroll.scrollTop = el.chatScroll.scrollHeight;
-      });
-    }
-
-    function cryptoId() {
-      if (window.crypto?.randomUUID) return crypto.randomUUID();
-      return Math.random().toString(36).slice(2) + Date.now().toString(36);
-    }
-
-    function renderRichText(text) {
-      const escaped = escapeHTML(text)
-        .replace(/\n/g, '<br>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`(.*?)`/g, '<code style="background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 7px;">$1</code>');
-      return escaped;
-    }
-
-    function stripMarkdown(text) {
-      return String(text)
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .replace(/\*(.*?)\*/g, '$1')
-        .replace(/`(.*?)`/g, '$1');
-    }
-
-    function escapeHTML(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
-    }
-
-    function normalizeText(text) {
-      return String(text)
-        .trim()
-        .replace(/\s+/g, ' ')
-        .replace(/[¡!¿?.,;:]+/g, '')
-        .toLowerCase();
-    }
-
-    function tidyValue(value) {
-      return String(value)
-        .trim()
-        .replace(/[.?!,;:]+$/g, '')
-        .replace(/\s+/g, ' ')
-        .slice(0, 80);
-    }
-
-    function truncate(text, n) {
-      const s = String(text);
-      return s.length > n ? s.slice(0, n - 1) + '…' : s;
-    }
-
-    function addTypingIndicator() {
-      const id = cryptoId();
-      const msg = { id, role: 'assistant', content: 'Escribiendo...', typing: true };
-      state.messages.push(msg);
-      saveJSON(STORAGE.messages, state.messages);
-      renderMessages();
-      scrollToBottom();
-      return id;
-    }
-
-    function removeTypingIndicator(id) {
-      state.messages = state.messages.filter(m => m.id !== id && !m.typing);
-      saveJSON(STORAGE.messages, state.messages);
-      renderMessages();
-      renderChatList();
-      scrollToBottom();
-    }
-
-    // Close the settings modal if the user clicks outside while typing a draft? no.
-    // Initial memory sync.
-    if (!state.memory.users[state.memory.currentUser]) {
-      state.memory.users[state.memory.currentUser] = makeUserRecord();
-      saveJSON(STORAGE.memory, state.memory);
-    }
-
-    // Ensure current state is saved and UI is aligned.
-    renderAll();
-    updateModelHint();
-    updateStatus();
-  </script>
+</script>
 </body>
 </html>
