@@ -333,6 +333,7 @@ ${getDateTimeString()}` + (mem ? "\n\n" + mem : "");
 
     try{
         let reply = null;
+        let useTools = true;
 
         for(let round = 0; round < 4; round++){
             const response = await fetch(endpoint, {
@@ -341,17 +342,28 @@ ${getDateTimeString()}` + (mem ? "\n\n" + mem : "");
                     "Authorization":"Bearer " + apiKey,
                     "Content-Type":"application/json"
                 },
-                body:JSON.stringify({
-                    model:"llama-3.3-70b-versatile",
+                body:JSON.stringify(useTools ? {
+                    model:"openai/gpt-oss-120b",
                     messages:apiMessages,
                     tools:tools,
                     tool_choice:"auto"
+                } : {
+                    model:"openai/gpt-oss-120b",
+                    messages:apiMessages
                 })
             });
 
             const data = await response.json();
 
-            if(data.error) throw new Error(data.error.message);
+            if(data.error){
+                // if the model botches a tool call, drop tools and retry plainly
+                // instead of leaving the user stuck on "Pensando..."
+                if(data.error.code === "tool_use_failed" && useTools){
+                    useTools = false;
+                    continue;
+                }
+                throw new Error(data.error.message);
+            }
 
             const msg = data.choices[0].message;
 
