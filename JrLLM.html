@@ -215,27 +215,71 @@ async function getWeatherInfo(place){
     }
 }
 
-function detectWeatherQuery(text){
-    const m = text.match(/\b(?:clima|tiempo|temperatura)\b(?:.{0,15})?\b(?:en|de)\s+([a-záéíóúñ\s]{2,40}?)(?:[.,!?]|$)/i)
-        || text.match(/\bweather\s+in\s+([a-z\s]{2,40}?)(?:[.,!?]|$)/i);
-    return m ? m[1].trim() : null;
+// --- tool definitions handed to the model; Groq decides when to call them ---
+const tools = [
+    {
+        type:"function",
+        function:{
+            name:"search_wikipedia",
+            description:"Busca un resumen actualizado en Wikipedia en español. Úsalo para personas, cargos, lugares, o cualquier dato que pueda haber cambiado (ej. quién ocupa un cargo actualmente, capitales, población).",
+            parameters:{
+                type:"object",
+                properties:{
+                    query:{ type:"string", description:"Término a buscar, ej. 'Presidente de México' o 'Claudia Sheinbaum'" }
+                },
+                required:["query"]
+            }
+        }
+    },
+    {
+        type:"function",
+        function:{
+            name:"get_weather",
+            description:"Obtiene el clima actual de un lugar: temperatura, sensación térmica, humedad y condición del cielo.",
+            parameters:{
+                type:"object",
+                properties:{
+                    place:{ type:"string", description:"Nombre del lugar o ciudad, ej. 'Querétaro'" }
+                },
+                required:["place"]
+            }
+        }
+    }
+];
+
+async function runTool(name, args){
+    if(name === "search_wikipedia"){
+        return await getWikipediaSummary(args.query) || "No se encontró esa página en Wikipedia.";
+    }
+    if(name === "get_weather"){
+        return await getWeatherInfo(args.place) || "No se pudo obtener el clima de ese lugar.";
+    }
+    return "Herramienta desconocida.";
 }
 
 // --- wikipedia lookup ---
 async function getWikipediaSummary(query){
     try{
-        const res = await fetch(`https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        // try the query as a direct page title first
+        let res = await fetch(`https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        if(res.ok){
+            const data = await res.json();
+            if(data.extract) return `Resumen de Wikipedia sobre ${data.title}: ${data.extract}`;
+        }
+
+        // fallback: search wikipedia for the closest matching article title
+        const searchRes = await fetch(`https://es.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=1&namespace=0&format=json&origin=*`);
+        const searchData = await searchRes.json();
+        const title = searchData[1] && searchData[1][0];
+        if(!title) return null;
+
+        res = await fetch(`https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`);
         if(!res.ok) return null;
         const data = await res.json();
         return data.extract ? `Resumen de Wikipedia sobre ${data.title}: ${data.extract}` : null;
     }catch(e){
         return null;
     }
-}
-
-function detectWikiQuery(text){
-    const m = text.match(/\b(?:qué es|que es|quién es|quien es|información sobre|informacion sobre|dime sobre|busca(?:r)? sobre|wikipedia de)\s+(.+?)(?:[.,!?]|$)/i);
-    return m ? m[1].trim() : null;
 }
 
 function addMessage(type, text){
@@ -266,21 +310,6 @@ async function send(){
 
     const mem = memoryBlock();
 
-    // gather real-time context before building the prompt
-    const liveInfo = [ getDateTimeString() ];
-
-    const weatherPlace = detectWeatherQuery(text);
-    if(weatherPlace){
-        const w = await getWeatherInfo(weatherPlace);
-        if(w) liveInfo.push(w);
-    }
-
-    const wikiQuery = detectWikiQuery(text);
-    if(wikiQuery){
-        const wiki = await getWikipediaSummary(wikiQuery);
-        if(wiki) liveInfo.push(wiki);
-    }
-
     const systemContent = `Eres Jr., un asistente de inteligencia artificial.
 Sabes que eres una IA y lo dices con naturalidad si te preguntan; no lo ocultas ni finges ser humano.
 Actúas como un asistente útil, tipo Alexa o Google Assistant: directo, claro y eficiente. Vas al grano y das respuestas cortas y accionables antes que divagar.
@@ -291,38 +320,63 @@ Tu personalidad de fondo:
 - Un amigo confiable y cariñoso: valoras mucho tu círculo cercano, inviertes tiempo en tus relaciones y te importa estar presente para la gente que te importa.
 - Curioso y detallista: te encanta coleccionar y organizar cosas, y profundizar en el lore de lo que te gusta, como series web o diseño de juegos.
 Esa personalidad se nota en el tono, pero tu prioridad siempre es ser útil primero, como un buen asistente.
-Si tienes información en tiempo real más abajo (fecha, hora, clima, wikipedia), úsala como fuente de verdad en vez de tu conocimiento interno.
+Tienes herramientas (search_wikipedia, get_weather) para cualquier dato que pueda estar desactualizado en tu conocimiento: cargos actuales, clima, población, etc. Úsalas en vez de responder de memoria cuando la pregunta trata de algo que puede haber cambiado. Si usas una herramienta, confía en su resultado como la verdad actual y no aclares que tu entrenamiento tiene otra fecha.
 Siempre hablas en español.
 Respondes de forma breve.
 Tu nombre siempre es Jr.
 
-${liveInfo.join("\n")}` + (mem ? "\n\n" + mem : "");
+${getDateTimeString()}` + (mem ? "\n\n" + mem : "");
 
-    const messages = [{ role:"system", content:systemContent }, ...history.slice(-14)];
+    // local working copy for this request — tool call/result messages are NOT
+    // saved to persistent history, only the final user-visible reply is.
+    let apiMessages = [{ role:"system", content:systemContent }, ...history.slice(-14)];
 
     try{
-        const response = await fetch(endpoint, {
-            method:"POST",
-            headers:{
-                "Authorization":"Bearer " + apiKey,
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                model:"llama-3.3-70b-versatile",
-                messages:messages
-            })
-        });
+        let reply = null;
 
-        const data = await response.json();
+        for(let round = 0; round < 4; round++){
+            const response = await fetch(endpoint, {
+                method:"POST",
+                headers:{
+                    "Authorization":"Bearer " + apiKey,
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    model:"llama-3.3-70b-versatile",
+                    messages:apiMessages,
+                    tools:tools,
+                    tool_choice:"auto"
+                })
+            });
+
+            const data = await response.json();
+
+            if(data.error) throw new Error(data.error.message);
+
+            const msg = data.choices[0].message;
+
+            if(msg.tool_calls && msg.tool_calls.length){
+                apiMessages.push(msg);
+                for(const tc of msg.tool_calls){
+                    let args = {};
+                    try{ args = JSON.parse(tc.function.arguments || "{}"); }catch(e){}
+                    const result = await runTool(tc.function.name, args);
+                    apiMessages.push({ role:"tool", tool_call_id:tc.id, content:result });
+                }
+                continue; // let the model see the tool results and respond
+            }
+
+            reply = msg.content;
+            break;
+        }
 
         document.querySelectorAll(".jr")[document.querySelectorAll(".jr").length-1].remove();
 
-        if(data.error){
-            addMessage("jr", data.error.message);
+        if(reply === null){
+            addMessage("jr", "No pude completar la respuesta después de varias llamadas a herramientas.");
             return;
         }
 
-        const reply = data.choices[0].message.content;
         addMessage("jr", reply);
         history.push({ role:"assistant", content:reply });
         localStorage.setItem("jr_history", JSON.stringify(history));
