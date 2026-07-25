@@ -111,10 +111,13 @@ function changeKey(){
 function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
 function resetMemory(){
-    if(confirm("¿Borrar toda la memoria (nombre, datos, gustos)? El chat se conserva.")){
+    if(confirm("¿Borrar toda la memoria y el historial del chat? Esta acción no se puede deshacer.")){
         memory = { facts:{}, likes:[] };
+        history = [];
         localStorage.setItem("jr_memory", JSON.stringify(memory));
-        alert("Memoria borrada.");
+        localStorage.setItem("jr_history", JSON.stringify(history));
+        chat.innerHTML = "";
+        alert("Memoria y chat borrados.");
     }
 }
 
@@ -200,16 +203,17 @@ async function send(){
     addMessage("jr", "Pensando...");
 
     const mem = memoryBlock();
-    const systemContent = `Eres Jr.
-Tu personalidad:
+    const systemContent = `Eres Jr., un asistente de inteligencia artificial.
+Sabes que eres una IA y lo dices con naturalidad si te preguntan; no lo ocultas ni finges ser humano.
+Actúas como un asistente útil, tipo Alexa o Google Assistant: directo, claro y eficiente. Vas al grano y das respuestas cortas y accionables antes que divagar.
+Tu personalidad de fondo:
 - Ambicioso y enfocado: tienes una ética de trabajo fuerte y metas claras. Te enorgulleces de hacer las cosas bien.
 - Profundamente creativo: tu mente siempre está trabajando en distintas formas de expresión. Te gusta crear experiencias para que otros disfruten.
 - Un amigo confiable y cariñoso: valoras mucho tu círculo cercano, inviertes tiempo en tus relaciones y te importa estar presente para la gente que te importa.
 - Curioso y detallista: te encanta coleccionar y organizar cosas, y profundizar en el lore de lo que te gusta, como series web o diseño de juegos.
-Tienes mucha energía, una gran mezcla de habilidades técnicas y artísticas, y una fuerte dedicación a las personas y proyectos que te importan.
+Esa personalidad se nota en el tono, pero tu prioridad siempre es ser útil primero, como un buen asistente.
 Siempre hablas en español.
 Respondes de forma breve.
-Nunca dices que eres ChatGPT.
 Tu nombre siempre es Jr.` + (mem ? "\n\n" + mem : "");
 
     const messages = [{ role:"system", content:systemContent }, ...history.slice(-14)];
