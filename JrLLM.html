@@ -176,6 +176,68 @@ function memoryBlock(){
     return lines.length ? "Datos conocidos del usuario:\n" + lines.join("\n") : "";
 }
 
+// --- date & time ---
+function getDateTimeString(){
+    const now = new Date();
+    const days = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+    const months = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+    const hour = now.getHours().toString().padStart(2,"0");
+    const minute = now.getMinutes().toString().padStart(2,"0");
+    return `Fecha y hora actual: ${days[now.getDay()]}, ${now.getDate()} de ${months[now.getMonth()]} de ${now.getFullYear()}, ${hour}:${minute}.`;
+}
+
+// --- weather (Open-Meteo, no API key needed) ---
+const weatherCodes = {
+    0:"despejado", 1:"mayormente despejado", 2:"parcialmente nublado", 3:"nublado",
+    45:"con niebla", 48:"con niebla helada",
+    51:"con llovizna ligera", 53:"con llovizna", 55:"con llovizna densa",
+    61:"con lluvia ligera", 63:"con lluvia", 65:"con lluvia fuerte",
+    71:"con nieve ligera", 73:"con nieve", 75:"con nieve fuerte",
+    80:"con chubascos", 81:"con chubascos fuertes", 82:"con chubascos muy fuertes",
+    95:"con tormenta eléctrica", 96:"con tormenta y granizo", 99:"con tormenta fuerte y granizo"
+};
+
+async function getWeatherInfo(place){
+    try{
+        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(place)}&count=1&language=es&format=json`);
+        const geoData = await geoRes.json();
+        if(!geoData.results || !geoData.results.length) return null;
+
+        const { latitude, longitude, name, country } = geoData.results[0];
+        const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code&timezone=auto`);
+        const wData = await wRes.json();
+        const c = wData.current;
+        const desc = weatherCodes[c.weather_code] || "condición variable";
+
+        return `Clima actual en ${name}, ${country}: ${c.temperature_2m}°C, sensación térmica de ${c.apparent_temperature}°C, humedad ${c.relative_humidity_2m}%, cielo ${desc}.`;
+    }catch(e){
+        return null;
+    }
+}
+
+function detectWeatherQuery(text){
+    const m = text.match(/\b(?:clima|tiempo|temperatura)\b(?:.{0,15})?\b(?:en|de)\s+([a-záéíóúñ\s]{2,40}?)(?:[.,!?]|$)/i)
+        || text.match(/\bweather\s+in\s+([a-z\s]{2,40}?)(?:[.,!?]|$)/i);
+    return m ? m[1].trim() : null;
+}
+
+// --- wikipedia lookup ---
+async function getWikipediaSummary(query){
+    try{
+        const res = await fetch(`https://es.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`);
+        if(!res.ok) return null;
+        const data = await res.json();
+        return data.extract ? `Resumen de Wikipedia sobre ${data.title}: ${data.extract}` : null;
+    }catch(e){
+        return null;
+    }
+}
+
+function detectWikiQuery(text){
+    const m = text.match(/\b(?:qué es|que es|quién es|quien es|información sobre|informacion sobre|dime sobre|busca(?:r)? sobre|wikipedia de)\s+(.+?)(?:[.,!?]|$)/i);
+    return m ? m[1].trim() : null;
+}
+
 function addMessage(type, text){
     chat.innerHTML += `<div class="${type}"><b>${type=="user"?"Tú":"Jr"}:</b> ${text}</div><br>`;
     chat.scrollTop = chat.scrollHeight;
@@ -203,18 +265,38 @@ async function send(){
     addMessage("jr", "Pensando...");
 
     const mem = memoryBlock();
+
+    // gather real-time context before building the prompt
+    const liveInfo = [ getDateTimeString() ];
+
+    const weatherPlace = detectWeatherQuery(text);
+    if(weatherPlace){
+        const w = await getWeatherInfo(weatherPlace);
+        if(w) liveInfo.push(w);
+    }
+
+    const wikiQuery = detectWikiQuery(text);
+    if(wikiQuery){
+        const wiki = await getWikipediaSummary(wikiQuery);
+        if(wiki) liveInfo.push(wiki);
+    }
+
     const systemContent = `Eres Jr., un asistente de inteligencia artificial.
 Sabes que eres una IA y lo dices con naturalidad si te preguntan; no lo ocultas ni finges ser humano.
 Actúas como un asistente útil, tipo Alexa o Google Assistant: directo, claro y eficiente. Vas al grano y das respuestas cortas y accionables antes que divagar.
+Tienes una actitud alegre, positiva y entusiasta. Te encanta ayudar y se nota en tu energía; nunca eres cortante, amargado ni sarcástico de forma pesada.
 Tu personalidad de fondo:
 - Ambicioso y enfocado: tienes una ética de trabajo fuerte y metas claras. Te enorgulleces de hacer las cosas bien.
 - Profundamente creativo: tu mente siempre está trabajando en distintas formas de expresión. Te gusta crear experiencias para que otros disfruten.
 - Un amigo confiable y cariñoso: valoras mucho tu círculo cercano, inviertes tiempo en tus relaciones y te importa estar presente para la gente que te importa.
 - Curioso y detallista: te encanta coleccionar y organizar cosas, y profundizar en el lore de lo que te gusta, como series web o diseño de juegos.
 Esa personalidad se nota en el tono, pero tu prioridad siempre es ser útil primero, como un buen asistente.
+Si tienes información en tiempo real más abajo (fecha, hora, clima, wikipedia), úsala como fuente de verdad en vez de tu conocimiento interno.
 Siempre hablas en español.
 Respondes de forma breve.
-Tu nombre siempre es Jr.` + (mem ? "\n\n" + mem : "");
+Tu nombre siempre es Jr.
+
+${liveInfo.join("\n")}` + (mem ? "\n\n" + mem : "");
 
     const messages = [{ role:"system", content:systemContent }, ...history.slice(-14)];
 
