@@ -1319,4 +1319,127 @@ textarea::placeholder {
       }
     }
 
-    function c
+    function clearAll() {
+      if (!confirm('¿Borrar memoria, chat y configuración local?')) return;
+      localStorage.removeItem(STORAGE.apiKey);
+      localStorage.removeItem(STORAGE.messages);
+      localStorage.removeItem(STORAGE.memory);
+      localStorage.removeItem(STORAGE.settings);
+      localStorage.removeItem(STORAGE.currentUser);
+      localStorage.removeItem(STORAGE.chatDraft);
+      location.reload();
+    }
+
+    function exportMemory() {
+      const payload = {
+        currentUser: state.memory.currentUser,
+        users: state.memory.users,
+        messages: state.messages,
+        settings: state.settings
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'jr-memory-export.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Memoria exportada.');
+    }
+
+    function showToast(message) {
+      el.toast.textContent = message;
+      el.toast.classList.add('show');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => el.toast.classList.remove('show'), 2400);
+    }
+
+    function scrollToBottom() {
+      requestAnimationFrame(() => {
+        el.chatScroll.scrollTop = el.chatScroll.scrollHeight;
+      });
+    }
+
+    function cryptoId() {
+      if (window.crypto?.randomUUID) return crypto.randomUUID();
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function renderRichText(text) {
+      const escaped = escapeHTML(text)
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code style="background: rgba(255,255,255,0.07); padding: 2px 6px; border-radius: 7px;">$1</code>');
+      return escaped;
+    }
+
+    function stripMarkdown(text) {
+      return String(text)
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1')
+        .replace(/`(.*?)`/g, '$1');
+    }
+
+    function escapeHTML(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function normalizeText(text) {
+      return String(text)
+        .trim()
+        .replace(/\s+/g, ' ')
+        .replace(/[¡!¿?.,;:]+/g, '')
+        .toLowerCase();
+    }
+
+    function tidyValue(value) {
+      return String(value)
+        .trim()
+        .replace(/[.?!,;:]+$/g, '')
+        .replace(/\s+/g, ' ')
+        .slice(0, 80);
+    }
+
+    function truncate(text, n) {
+      const s = String(text);
+      return s.length > n ? s.slice(0, n - 1) + '…' : s;
+    }
+
+    function addTypingIndicator() {
+      const id = cryptoId();
+      const msg = { id, role: 'assistant', content: 'Escribiendo...', typing: true };
+      state.messages.push(msg);
+      saveJSON(STORAGE.messages, state.messages);
+      renderMessages();
+      scrollToBottom();
+      return id;
+    }
+
+    function removeTypingIndicator(id) {
+      state.messages = state.messages.filter(m => m.id !== id && !m.typing);
+      saveJSON(STORAGE.messages, state.messages);
+      renderMessages();
+      renderChatList();
+      scrollToBottom();
+    }
+
+    // Close the settings modal if the user clicks outside while typing a draft? no.
+    // Initial memory sync.
+    if (!state.memory.users[state.memory.currentUser]) {
+      state.memory.users[state.memory.currentUser] = makeUserRecord();
+      saveJSON(STORAGE.memory, state.memory);
+    }
+
+    // Ensure current state is saved and UI is aligned.
+    renderAll();
+    updateModelHint();
+    updateStatus();
+  </script>
+</body>
+</html>
