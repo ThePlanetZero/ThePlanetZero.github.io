@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanetZero</title>
+
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #101510;
+            color: #eeeeee;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        main {
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        a {
+            color: #65d66f;
+        }
+
+        a:hover {
+            color: #91f59a;
+        }
+
+        h1 {
+            font-size: 42px;
+            margin-bottom: 5px;
+            color: #7bea83;
+        }
+
+        h2 {
+            margin-top: 55px;
+            border-bottom: 1px solid #29442c;
+            padding-bottom: 5px;
+            color: #72df7a;
+        }
+
+        h3 {
+            color: #b9f5bd;
+        }
+
+        .subtitle {
+            color: #8fa991;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #182119;
+            border: 1px solid #29442c;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 10;
+        }
+
+        .sidebar a {
+            color: #8fa991;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .sidebar a:hover {
+            color: #7bea83;
+        }
+
+        .project {
+            background: #182119;
+            border: 1px solid #29442c;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+
+        .project h3 {
+            margin-top: 0;
+        }
+
+        .music-player {
+            width: 100%;
+            max-width: 560px;
+            margin: auto;
+        }
+
+        .youtube-player {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border: none;
+            border-radius: 6px;
+        }
+
+        .tiktok-player {
+            width: 100%;
+            max-width: 325px;
+            height: 575px;
+            border: none;
+            display: block;
+            margin: auto;
+        }
+
+        .player-container {
+            text-align: center;
+        }
+
+        .discord-button {
+            display: inline-block;
+            background: #3caf4a;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+
+        .discord-button:hover {
+            background: #52c960;
+            color: white;
+        }
+
+        footer {
+            margin-top: 70px;
+            color: #607062;
+            border-top: 1px solid #29442c;
+            padding: 20px 0;
+        }
+
+        @media (max-width: 1100px) {
+            .sidebar {
+                position: static;
+                transform: none;
+                width: fit-content;
+                margin: 0 auto 30px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            main {
+                padding-top: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+
+    <nav class="sidebar">
+        <a href="#about">About Me</a>
+        <a href="#music">Music</a>
+        <a href="#games">Games</a>
+        <a href="#animations">Animations</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+
+    <main>
+
+        <!-- INTRO -->
+
+        <header>
+
+            <h1>Hey, I'm Zero.</h1>
+
+            <p class="subtitle">
+                Game developer • Music maker • Animator • Professional idea-haver
+            </p>
+
+            <p>
+                Welcome to my little corner of the internet.
+            </p>
+
+            <p>
+                I'm Zero, and I make a bunch of different stuff. I make games,
+                music, animations, and pretty much anything else that sounds
+                interesting enough to spend way too much time on.
+            </p>
+
+            <p>
+                A lot of my work revolves around Roblox, where I make games
+                both by myself and with other people. I'm also the founder of
+                <strong>TwistedPixels</strong>, a group where we work together
+                on bigger projects.
+            </p>
+
+            <p>
+                But games aren't the only thing I do. I make music when I feel
+                like making something that doesn't need a health bar, and I make
+                animations because apparently making things move around wasn't
+                enough work already.
+            </p>
+
+            <p>
+                Basically, if I get an idea and think
+                <em>"that would be cool,"</em> there's a pretty good chance
+                I'll eventually try to make it.
+            </p>
+
+        </header>
+
+
+        <!-- ABOUT -->
+
+        <section id="about">
+
+            <h2>About Me</h2>
+
+            <p>
+                I make games both solo and with a team. I'm also the founder of
+                <strong>TwistedPixels</strong>, where I work on Roblox games
+                with other developers and creators.
+            </p>
+
+            <p>
+                Besides game development, I make music and animations for fun
+                and to experiment with different ideas.
+            </p>
+
+        </section>
+
+
+        <!-- MUSIC -->
+
+        <section id="music">
+
+            <h2>My Music</h2>
+
+            <p>
+                I make music. Here are some examples:
+            </p>
+
+
+            <!-- HEARTFELT AMNESIA -->
+
+            <div class="project">
+
+                <h3>Heartfelt Amnesia</h3>
+
+                <div class="player-container">
+
+                    <iframe
+                        class="tiktok-player"
+                        src="https://www.tiktok.com/player/v1/7692955672534633735?music_info=1&description=1"
+                        title="Heartfelt Amnesia"
+                        allow="fullscreen"
+                        scrolling="no">
+                    </iframe>
+
+                </div>
+
+                <p>
+                    <a
+                        href="https://www.tiktok.com/@fans.journal/video/7692955672534633735"
+                        target="_blank">
+                        Watch on TikTok →
+                    </a>
+                </p>
+
+            </div>
+
+
+            <!-- ISN'T THAT WHAT FOES ARE FOR -->
+
+            <div class="project">
+
+                <h3>Isn't That What Foes Are For? (Remix)</h3>
+
+                <div class="player-container">
+
+                    <iframe
+                        class="youtube-player"
+                        src="https://www.youtube-nocookie.com/embed/DtFj3B98aLw"
+                        title="Isn't That What Foes Are For? (Remix)"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen>
+                    </iframe>
+
+                </div>
+
+                <p>
+                    <a
+                        href="https://www.youtube.com/watch?v=DtFj3B98aLw"
+                        target="_blank">
+                        Watch on YouTube →
+                    </a>
+                </p>
+
+            </div>
+
+            <p>
+                More added soon!
+            </p>
+
+        </section>
+
+
+        <!-- GAMES -->
+
+        <section id="games">
+
+            <h2>My Games</h2>
+
+            <p>
+                I make games both solo and with a team.
+                Here are some of my projects:
+            </p>
+
+
+            <!-- TREAT OR TRICK -->
+
+            <div class="project">
+
+                <h3>Treat or Trick</h3>
+
+                <p>
+                    A Halloween Roblox game where you explore a randomly
+                    generated neighborhood, collect candy, unlock costumes,
+                    and compete to become the biggest trick-or-treater.
+                </p>
+
+                <a
+                    href="https://www.roblox.com/games/98268533209192/TwistedPixels-Presents-Treat-or-Trick"
+                    target="_blank">
+                    Play on Roblox →
+                </a>
+
+            </div>
+
+
+            <!-- DOOMSPIRE -->
+
+            <div class="project">
+
+                <h3>Zero's Doomspire</h3>
+
+                <p>
+                    A Roblox Doomspire-inspired game made with TwistedPixels.
+                    Fight other players and try to be the last team standing.
+                </p>
+
+                <a
+                    href="https://www.roblox.com/games/136865116549695/Zeros-Doomspire"
+                    target="_blank">
+                    Play on Roblox →
+                </a>
+
+            </div>
+
+
+            <!-- SUCCESS HAS CONSEQUENCES -->
+
+            <div class="project">
+
+                <h3>Success Has Consequences</h3>
+
+                <p>
+                    A Roblox project built around the idea that getting ahead
+                    can come with unexpected consequences.
+                </p>
+
+                <a
+                    href="https://www.roblox.com/games/71544818516189/Success-Has-Consequences"
+                    target="_blank">
+                    Play on Roblox →
+                </a>
+
+            </div>
+
+
+            <!-- PARANOIA -->
+
+            <div class="project">
+
+                <h3>Paranoia</h3>
+
+                <p>
+                    A Roblox horror project focused on paranoia, uncertainty,
+                    and trying to figure out what is actually happening around you.
+                </p>
+
+                <a
+                    href="https://www.roblox.com/games/81615990776060/Paranoia"
+                    target="_blank">
+                    Play on Roblox →
+                </a>
+
+            </div>
+
+
+            <!-- MARVELOUS SHENANIGANS -->
+
+            <div class="project">
+
+                <h3>Zero's Marvelous Shenanigans</h3>
+
+                <p>
+                    A multiplayer fighting game where you create your own
+                    abilities using a visual node editor, then take those
+                    creations into battle against other players.
+                </p>
+
+                <p>
+                    Basically: build something ridiculous, give it a moveset,
+                    and see what happens.
+                </p>
+
+                <a
+                    href="https://theplanetzero.github.io/ZerosMarvelousShenanigans/"
+                    target="_blank">
+                    Visit the website →
+                </a>
+
+                <br>
+
+                <a
+                    href="https://www.roblox.com/games/123199172255190/Zeros-Marvelous-Shenanigans"
+                    target="_blank">
+                    Play on Roblox →
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANIMATIONS -->
+
+        <section id="animations">
+
+            <h2>Animations</h2>
+
+            <p>
+                I also make animations and other videos on my YouTube channel.
+            </p>
+
+            <p>
+                <a
+                    href="https://www.youtube.com/"
+                    target="_blank">
+                    Visit my YouTube channel →
+                </a>
+            </p>
+
+        </section>
+
+
+        <!-- CONTACT -->
+
+        <section id="contact">
+
+            <h2>Contact</h2>
+
+            <p>
+                Want to talk, collaborate, or just say hi?
+            </p>
+
+            <a
+                class="discord-button"
+                href="discord://-/users/@me"
+                onclick="setTimeout(function() {
+                    window.location.href='https://discord.com/app';
+                }, 700);">
+                Open Discord
+            </a>
+
+            <p>
+                Discord: <strong>the.planetzero</strong>
+            </p>
+
+        </section>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+            © 2026 PlanetZero
+        </footer>
+
+    </main>
+
+</body>
+</html>
