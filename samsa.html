@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>samsa</title>
+<style>
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    font-family: system-ui, sans-serif;
+    background: #15161a;
+    color: #e8e8ea;
+  }
+  button {
+    font: inherit;
+    font-size: 1.1rem;
+    padding: 14px 28px;
+    border: 0;
+    border-radius: 8px;
+    background: #5865f2;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:hover { background: #4752c4; }
+  button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #status { min-height: 1.4em; font-size: .95rem; color: #a0a3ad; }
+</style>
+</head>
+<body>
+  <button id="btn">Click here to announce</button>
+  <div id="status" role="status"></div>
+
+<script>
+  const WEBHOOK_URL = "https://discord.com/api/webhooks/1562098047402516480/dkfs92KhCeKQUai_vfgqkxlGe7bglU2aSa5RmU9yjyecqURY9RpgJol0wCP3MuN9pW9X";
+  const MESSAGE = "YOUR FRIEND WANTS ACCESS CHECK YOUR EMAIL";
+  const COUNT = 5;
+
+  const btn = document.getElementById("btn");
+  const status = document.getElementById("status");
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    let sent = 0;
+    for (let i = 0; i < COUNT; i++) {
+      status.textContent = `Sending ${i + 1} of ${COUNT}...`;
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: MESSAGE })
+        });
+        if (res.status === 429) {
+          const data = await res.json().catch(() => ({}));
+          await new Promise(r => setTimeout(r, ((data.retry_after || 1) * 1000) + 100));
+          i--;
+          continue;
+        }
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        sent++;
+      } catch (err) {
+        status.textContent = `Failed on message ${i + 1}: ${err.message}`;
+        btn.disabled = false;
+        return;
+      }
+      await new Promise(r => setTimeout(r, 500));
+    }
+    status.textContent = `Sent ${sent} messages.`;
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>
